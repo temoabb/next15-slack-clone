@@ -2,7 +2,7 @@
 import { Loader, LogOut } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useCurrentUser from "../hooks/useCurrentUser";
+import useCurrentUser from "../api/useCurrentUser";
 import {
   DropdownMenu,
   DropdownMenuContent,
