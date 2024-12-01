@@ -6,10 +6,12 @@ import { Loader } from "lucide-react";
 import UserButton from "@/features/auth/components/UserButton";
 
 import useGetWorkSpaces from "@/features/workspaces/api/useGetWorkspaces";
+import useCreateWorkspaceModal from "@/features/workspaces/store/useCreateWorkspaceModal";
 
-// If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components. They can be SERVER components too.
+// If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components. They could be SERVER components too.
 
 export default function Home() {
+  const [open, setOpen] = useCreateWorkspaceModal();
   const { data, isLoading } = useGetWorkSpaces();
 
   const workspaceId = useMemo(() => data?.[0]?._id, [data]);
@@ -19,13 +21,14 @@ export default function Home() {
 
     if (workspaceId) {
       console.log("Redirect to the workspace");
-    } else {
-      console.log("Open creation modal");
+    } else if (!open) {
+      setOpen(true);
+      // console.log("Open creation modal");
     }
-  }, [workspaceId, isLoading]);
+  }, [workspaceId, isLoading, open, setOpen]);
 
   if (isLoading) {
-    return <Loader />;
+    return <Loader className="size-4 aninate-spin text-muted-foreground" />;
   }
 
   return (
