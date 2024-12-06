@@ -1,38 +1,47 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCreateWorkspace } from "../api/useCreateWorkspace";
 import useCreateWorkspaceModal from "../store/useCreateWorkspaceModal";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogTitle,
   DialogHeader,
   DialogContent,
-  DialogDescription,
+  // DialogDescription,
 } from "@/components/ui/dialog";
 
 const CreateWorkspaceModal = () => {
   const router = useRouter();
-  const [open, setOpen] = useCreateWorkspaceModal();
-  const { createWorkspace } = useCreateWorkspace();
-  const [value, setValue] = useState("");
 
-  const handleSubmit = (name: string) => {
-    createWorkspace(
-      { name },
-      {
-        onSuccess: (data) => {
-          router.push(`/workspaces/${data.__tableName}`);
-        },
-      }
-    );
-  };
+  const [open, setOpen] = useCreateWorkspaceModal();
+  const [workspaceName, setWorkspaceName] = useState("");
+
+  const { mutate, isPending } = useCreateWorkspace();
 
   const handleClose = () => {
     setOpen(false);
-    // TODO: clear form
+    setWorkspaceName("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    mutate(
+      {
+        name: workspaceName,
+      },
+      {
+        onSuccess: (workspaceId) => {
+          toast.success("Workspace created");
+          router.push(`/workspace/${workspaceId}`);
+          handleClose();
+        },
+      }
+    );
   };
 
   return (
@@ -42,18 +51,18 @@ const CreateWorkspaceModal = () => {
           <DialogTitle>Add a workspace</DialogTitle>
         </DialogHeader>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            value={value}
-            disabled={false}
+            value={workspaceName}
+            disabled={isPending}
             autoFocus
             required
             minLength={3}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => setWorkspaceName(e.target.value)}
             placeholder="Workspace name e.g. 'Work', 'Personal', 'Home'"
           />
           <div className="flex justify-end">
-            <Button onClick={() => handleSubmit} disabled={false} className="">
+            <Button disabled={isPending} className="">
               Create
             </Button>
           </div>
