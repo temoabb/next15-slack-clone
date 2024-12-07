@@ -1,13 +1,19 @@
-interface WorkspaceIdPageProps {
-  params: {
-    workspaceId: string;
-  };
-}
+"use client";
 
-const WorkspaceIdPage: React.FC<WorkspaceIdPageProps> = ({ params }) => {
-  const { workspaceId } = params;
+import useGetWorkSpace from "@/features/workspaces/api/useGetWorkspace";
+import { useWorkspaceId } from "@/hooks/useWorkspaceId";
 
-  return <div>ID: {workspaceId}</div>;
+// interface WorkspaceIdPageProps {
+//   params: {
+//     workspaceId: string;
+//   };
+// }
+
+const WorkspaceIdPage = () => {
+  const workspaceId = useWorkspaceId();
+  const { data, isLoading } = useGetWorkSpace({ id: workspaceId });
+
+  return <div>ID: {data?.name} Workspace</div>;
 };
 
 export default WorkspaceIdPage;

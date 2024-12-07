@@ -33,3 +33,17 @@ export const create = mutation({
     return workspaceId;
   },
 });
+
+export const getById = query({
+  args: { id: v.id("workspaces") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("Unauthorized user is trying to get a workspace details");
+    }
+
+    // TODO: only members of the workspace can fetch its information
+    return await ctx.db.get(args.id);
+  },
+});
