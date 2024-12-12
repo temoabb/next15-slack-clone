@@ -18,18 +18,15 @@ export default function Home() {
   const workspaceId = useMemo(() => data?.[0]?._id, [data]);
 
   useEffect(() => {
-    // console.log("Home effect");
-
     if (isLoading) return;
 
     if (workspaceId) {
       console.log("Redirect to the workspace");
 
-      // This is a side-effectc
+      // This is a side-effect
       router.replace(`/workspace/${workspaceId}`);
     } else if (!open) {
       setOpen(true);
-      // console.log("Open creation modal");
     }
   }, [workspaceId, isLoading, open, setOpen, router]);
 

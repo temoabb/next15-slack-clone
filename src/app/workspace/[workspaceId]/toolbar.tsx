@@ -1,7 +1,8 @@
+import { Info, Search } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import useGetWorkSpace from "@/features/workspaces/api/useGetWorkspace";
 import { useWorkspaceId } from "@/hooks/useWorkspaceId";
-import { Info, Search } from "lucide-react";
 
 const Toolbar = () => {
   const workspaceId = useWorkspaceId();
@@ -33,4 +34,4 @@ export default Toolbar;
 
 // Next's app router allows us to actually create components here. What is important you do not have to name files reserved words: page, layout, error, loading etc. Again they are reserved keywords when you use app router.
 
-// You can add components in the 'components' folder too, but app router allows us to create components this way
+// You can add components in the 'components' folder too, but app router allows us to create components this way.
