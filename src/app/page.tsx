@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
@@ -10,18 +9,24 @@ import useCreateWorkspaceModal from "@/features/workspaces/store/useCreateWorksp
 // If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components. They could be SERVER components too.
 
 export default function Home() {
-  const [open, setOpen] = useCreateWorkspaceModal();
-  const { data, isLoading } = useGetWorkSpaces();
-
   const router = useRouter();
 
-  const workspaceId = useMemo(() => data?.[0]?._id, [data]);
+  const [open, setOpen] = useCreateWorkspaceModal();
+
+  const { data, isLoading } = useGetWorkSpaces();
+
+  // console.log("workspaces", data);
+
+  const workspaceId = useMemo(() => {
+    // console.log("NEW DATA", data);
+    return data?.[0]?._id;
+  }, [data]);
 
   useEffect(() => {
     if (isLoading) return;
 
     if (workspaceId) {
-      console.log("Redirect to the workspace");
+      console.log("Redirecting to the workspace");
 
       // This is a side-effect
       router.replace(`/workspace/${workspaceId}`);

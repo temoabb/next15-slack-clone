@@ -25,6 +25,10 @@ const UserButton = () => {
   const { name, image } = data;
   const avatarFallback = name!.charAt(0).toUpperCase();
 
+  const handleSignOut = () => {
+    signOut();
+  };
+
   return (
     <>
       <DropdownMenu modal={false}>
@@ -37,7 +41,7 @@ const UserButton = () => {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" side="right" className="w-60">
-          <DropdownMenuItem className="h-10" onClick={() => signOut()}>
+          <DropdownMenuItem className="h-10" onClick={handleSignOut}>
             <LogOut className="size-4 mr-2" />
             Log out
           </DropdownMenuItem>
