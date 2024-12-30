@@ -42,7 +42,10 @@ export const useCreateWorkspace = () => {
       } catch (error) {
         options?.onError?.(error as Error);
 
-        if (options?.throwError) throw Error;
+        // if (options?.throwError) throw Error;
+
+        // Copilot's suggestion (error instead of an Error)
+        if (options?.throwError) throw error;
       } finally {
         setStatus("settled");
         options?.onSettled?.();

@@ -2,16 +2,13 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-const generateCode = () => {
-  const code = Array.from(
+const generateCode = () =>
+  Array.from(
     { length: 6 },
     () => "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)]
   ).join("");
 
-  return code;
-};
-
-export const getWorkspaces = query({
+export const getAll = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
@@ -84,8 +81,7 @@ export const getById = query({
     const userId = await getAuthUserId(ctx);
 
     if (!userId) {
-      // TODO: refactor, temporarily hidden because of hydration error
-
+      // TODO: refactor, temporarily hidden because of hydration error:
       // throw new Error("Unauthorized user is trying to get a workspace details");
       return null;
     }
@@ -100,8 +96,6 @@ export const getById = query({
     // TODO: only members of the workspace can fetch its information
 
     if (!member) return null;
-
-    // return await ctx.db.get(args.id);
 
     const workspace = await ctx.db.get(args.id);
     return workspace;
