@@ -14,7 +14,7 @@ interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
 }
 
-const WorkspaceLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
+const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
   return (
     <div className="h-full">
       <Toolbar />
@@ -42,7 +42,7 @@ const WorkspaceLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
   );
 };
 
-export default WorkspaceLayout;
+export default WorkspaceIdLayout;
 
 // NOTE: The layout part WILL NOT rerender on route changes
 

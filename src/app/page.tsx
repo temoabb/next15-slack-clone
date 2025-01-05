@@ -26,7 +26,7 @@ export default function Home() {
     if (isLoading) return;
 
     if (workspaceId) {
-      console.log("Redirecting to the workspace");
+      // console.log("Redirecting to the workspace");
 
       // This is a side-effect
       router.replace(`/workspace/${workspaceId}`);
@@ -45,6 +45,3 @@ export default function Home() {
     </div>
   );
 }
-
-// npm run dev
-// npx convex dev

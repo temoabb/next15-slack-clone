@@ -27,7 +27,7 @@ export default function WorkspaceSwitcher() {
     id: workspaceId,
   });
 
-  // In the list of available worlspaces, we do not need to render a currently active one
+  // In the list of available workspaces, we do not need to render a currently active one
   const filteredWorkspaces = workspaces?.filter(
     (workspace) => workspace._id !== workspaceId
   );

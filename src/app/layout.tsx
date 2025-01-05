@@ -5,6 +5,8 @@ import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Modals } from "@/components/modals";
 
+import { JotaiProvider } from "@/components/ui/jotai-provider";
+
 import "./globals.css";
 
 const geistSans = localFont({
@@ -36,9 +38,11 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ConvexClientProvider>
-            <Toaster />
-            <Modals />
-            {children}
+            <JotaiProvider>
+              <Toaster />
+              <Modals />
+              {children}
+            </JotaiProvider>
           </ConvexClientProvider>
         </body>
       </html>

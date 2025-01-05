@@ -101,3 +101,82 @@ export const getById = query({
     return workspace;
   },
 });
+
+export const update = mutation({
+  args: {
+    id: v.id("workspaces"),
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      // TODO: refactor, temporarily returning a null because of hydration error:
+      // throw new Error("Unauthorized user is trying to get a workspace details");
+      return null;
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId)
+      )
+      .unique();
+
+    if (!member || member.role !== "admin") {
+      throw new Error(
+        "User is unauthorized or he/she doesn't have a right to update a workspace"
+      );
+    }
+
+    await ctx.db.patch(args.id, {
+      name: args.name,
+    });
+
+    return args.id;
+  },
+});
+
+export const remove = mutation({
+  args: {
+    id: v.id("workspaces"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      // TODO: refactor, temporarily returning a null because of hydration error:
+      // throw new Error("Unauthorized user is trying to get a workspace details");
+      return null;
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId)
+      )
+      .unique();
+
+    if (!member || member.role !== "admin") {
+      throw new Error(
+        "User is unauthorized or he/she doesn't have a right to remove a workspace"
+      );
+    }
+
+    // Later there below we will add "channels", not only 'members':
+    const [members] = await Promise.all([
+      ctx.db
+        .query("members")
+        .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
+        .collect(),
+    ]);
+
+    for (const member of members) {
+      await ctx.db.delete(member._id);
+    }
+
+    await ctx.db.delete(args.id);
+
+    return args.id;
+  },
+});

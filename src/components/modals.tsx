@@ -5,8 +5,7 @@ import CreateWorkspaceModal from "@/features/workspaces/components/CreateWorkspa
 export const Modals = () => {
   const [mounted, setMounted] = useState(false);
 
-  // useEffect can only be called once we are doing client side rendering.
-  // This will not happen on the server side.
+  // useEffect can only be called once we are doing client side rendering. This will not happen on the server side.
 
   useEffect(() => {
     setMounted(true);
@@ -21,4 +20,4 @@ export const Modals = () => {
   );
 };
 
-// server-side rendering and server components are not the same.
+// 'server-side rendering' and 'server components' are not the same.
