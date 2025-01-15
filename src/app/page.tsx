@@ -36,7 +36,7 @@ export default function Home() {
   }, [workspaceId, isLoading, open, setOpen, router]);
 
   if (isLoading) {
-    return <Loader className="size-4 aninate-spin text-muted-foreground" />;
+    return <Loader className="size-4 animate-spin text-muted-foreground" />;
   }
 
   return (
