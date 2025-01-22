@@ -1,5 +1,7 @@
 "use client";
 
+import { PropsWithChildren } from "react";
+
 import {
   Tooltip,
   TooltipContent,
@@ -7,9 +9,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface HintProps {
+interface HintProps extends PropsWithChildren {
   label: string;
-  children: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
 }

@@ -48,6 +48,7 @@ export const create = mutation({
   args: {
     name: v.string(),
   },
+
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
@@ -57,7 +58,8 @@ export const create = mutation({
     // TODO: create a proper method later
     const joinCode = generateCode();
 
-    // If we are the user that created a workspace, it will be correct to assume that we are the admin and the member of that workspace
+    // If we are the user that created a workspace,
+    // it will be correct to assume that we are the admin and the member of that workspace.
     const workspaceId = await ctx.db.insert("workspaces", {
       name: args.name,
       userId,
@@ -68,6 +70,11 @@ export const create = mutation({
       userId,
       workspaceId,
       role: "admin",
+    });
+
+    await ctx.db.insert("channels", {
+      name: "general",
+      workspaceId,
     });
 
     // const workspace = await ctx.db.get(workspaceId);

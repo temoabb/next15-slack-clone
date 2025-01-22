@@ -17,7 +17,9 @@ interface WorkspaceIdLayoutProps {
 const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
   return (
     <div className="h-full">
+      {/* search  */}
       <Toolbar />
+
       <div className="flex h-[calc(100vh-40px)]">
         <Sidebar />
 
