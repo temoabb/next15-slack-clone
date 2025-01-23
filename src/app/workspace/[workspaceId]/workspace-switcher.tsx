@@ -3,11 +3,11 @@
 import { Loader, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { useWorkspaceId } from "@/hooks/useWorkspaceId";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 import useGetWorkSpace from "@/features/workspaces/api/useGetWorkspace";
 import useGetWorkSpaces from "@/features/workspaces/api/useGetWorkspaces";
-import useCreateWorkspaceModal from "@/features/workspaces/store/useCreateWorkspaceModal";
+import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 
 import { Button } from "@/components/ui/button";
 import {

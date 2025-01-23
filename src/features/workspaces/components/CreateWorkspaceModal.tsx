@@ -2,16 +2,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import useCreateWorkspaceModal from "../store/use-create-workspace-modal";
+
 import { useCreateWorkspace } from "../api/useCreateWorkspace";
-import useCreateWorkspaceModal from "../store/useCreateWorkspaceModal";
+
 import {
   Dialog,
   DialogTitle,
   DialogHeader,
   DialogContent,
-  // DialogDescription,
 } from "@/components/ui/dialog";
 
 const CreateWorkspaceModal = () => {

@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TrashIcon } from "lucide-react";
 
-import { useConfirm } from "@/hooks/useConfirm";
-import { useWorkspaceId } from "@/hooks/useWorkspaceId";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 import { useUpdateWorkspace } from "@/features/workspaces/api/useUpdateWorkspace";
 import { useRemoveWorkspace } from "@/features/workspaces/api/useRemoveWorkspace";

@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useWorkspaceId } from "@/hooks/useWorkspaceId";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 const sidebarItemVariants = cva(
   "flex items-center gap-1.5 justify-start font-normal h-7 px-[18px] text-sm overflow-hidden",

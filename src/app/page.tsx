@@ -2,9 +2,12 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
+
 import UserButton from "@/features/auth/components/UserButton";
+
 import useGetWorkSpaces from "@/features/workspaces/api/useGetWorkspaces";
-import useCreateWorkspaceModal from "@/features/workspaces/store/useCreateWorkspaceModal";
+
+import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 
 // If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components. They could be SERVER components too.
 
@@ -15,10 +18,7 @@ export default function Home() {
 
   const { data, isLoading } = useGetWorkSpaces();
 
-  // console.log("workspaces", data);
-
   const workspaceId = useMemo(() => {
-    // console.log("NEW DATA", data);
     return data?.[0]?._id;
   }, [data]);
 
