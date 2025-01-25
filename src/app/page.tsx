@@ -5,7 +5,7 @@ import { Loader } from "lucide-react";
 
 import UserButton from "@/features/auth/components/UserButton";
 
-import useGetWorkSpaces from "@/features/workspaces/api/useGetWorkspaces";
+import useGetWorkSpaces from "@/features/workspaces/api/use-get-workspaces";
 
 import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 

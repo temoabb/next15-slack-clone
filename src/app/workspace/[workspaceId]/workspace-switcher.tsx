@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
-import useGetWorkSpace from "@/features/workspaces/api/useGetWorkspace";
-import useGetWorkSpaces from "@/features/workspaces/api/useGetWorkspaces";
+import useGetWorkSpace from "@/features/workspaces/api/use-get-workspace";
+import useGetWorkSpaces from "@/features/workspaces/api/use-get-workspaces";
 import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 
 import { Button } from "@/components/ui/button";

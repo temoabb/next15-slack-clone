@@ -14,7 +14,7 @@ import WorkspaceSection from "./workspace-section";
 import useGetMembers from "@/features/members/api/use-get-members";
 import useGetChannels from "@/features/channels/api/use-get-channels";
 import useCurrentMember from "@/features/members/api/use-current-member";
-import useGetWorkSpace from "@/features/workspaces/api/useGetWorkspace";
+import useGetWorkSpace from "@/features/workspaces/api/use-get-workspace";
 // import CreateChannelModal from "@/features/channels/components/create-channel-modal";
 import useCreateChannelModal from "@/features/channels/store/use-create-channel-modal";
 
@@ -72,7 +72,6 @@ const WorkspaceSidebar = () => {
 
   return (
     <>
-      {/* <CreateChannelModal /> */}
       <div className="flex flex-col gap-y-2 bg-[#5e2c5f] h-full">
         <WorkspaceHeader workspace={workspace} isAdmin={isAdmin} />
 

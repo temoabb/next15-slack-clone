@@ -1,14 +1,16 @@
-import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { useConfirm } from "@/hooks/use-confirm";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
-import { useUpdateWorkspace } from "@/features/workspaces/api/useUpdateWorkspace";
-import { useRemoveWorkspace } from "@/features/workspaces/api/useRemoveWorkspace";
+import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
+import { useRemoveWorkspace } from "@/features/workspaces/api/use-remove-workspace";
 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +19,8 @@ import {
   DialogTitle,
   DialogClose,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
-
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 interface PreferencesModalProps {
   open: boolean;
@@ -100,6 +100,7 @@ const PreferencesModal = ({
         <DialogContent className="p-0 bg-gray-50 overflow-hidden">
           <DialogHeader className="p-4 border-b bg-white">
             <DialogTitle>{value}</DialogTitle>
+            <DialogDescription></DialogDescription>
           </DialogHeader>
 
           <div className="px-4 pb-4 flex flex-col gap-y-2">
