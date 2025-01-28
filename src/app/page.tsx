@@ -9,7 +9,9 @@ import useGetWorkSpaces from "@/features/workspaces/api/use-get-workspaces";
 
 import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 
-// If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components. They could be SERVER components too.
+// If component is a client component ("use client") and it is a wrapper on the {children},
+// it does not mean children and their children need to be a client components.
+// They could be SERVER components too.
 
 export default function Home() {
   const router = useRouter();
