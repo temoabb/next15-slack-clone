@@ -63,7 +63,7 @@ const WorkspaceSidebar = () => {
   if (!workspace || !currentMember) {
     return (
       <div className="flex flex-col gap-y-2 bg-[#5e2c5f] h-full items-center justify-center">
-        <AlertTriangle className="size-5  text-white" />
+        <AlertTriangle className="size-5 text-white" />
         <p className="text-white text-sm">Workspace or member not found</p>
       </div>
     );
