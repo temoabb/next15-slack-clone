@@ -44,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
 
   const [ConfirmDialog, confirm] = useConfirm(
     "Delete this channel?",
-    "You are about to delete this channel. This action is irreversible"
+    "You are about to delete this channel. This action is irreversible!"
   );
 
   const { mutate: updateChannel, isPending: isUpdatingChannel } =

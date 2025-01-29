@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
-import { ConvexClientProvider } from "@/components/convex-client-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Modals } from "@/components/modals";
 
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+
+import { Modals } from "@/components/modals";
+import { Toaster } from "@/components/ui/sonner";
+import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { JotaiProvider } from "@/components/ui/jotai-provider";
 
 import "./globals.css";
