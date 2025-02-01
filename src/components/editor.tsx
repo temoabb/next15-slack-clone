@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ImageIcon, Smile } from "lucide-react";
 import { PiTextAa } from "react-icons/pi";
 import { MdSend } from "react-icons/md";
@@ -7,8 +7,10 @@ import { Delta, Op } from "quill/core";
 import Quill, { type QuillOptions } from "quill";
 import "quill/dist/quill.snow.css";
 
-import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+
 import Hint from "./hint";
+import { Button } from "./ui/button";
 
 type EditorValue = {
   image: File | null;
@@ -17,13 +19,15 @@ type EditorValue = {
 
 interface EditorProps {
   onSubmit: ({ image, body }: EditorValue) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
   placeholder?: string;
   defaultValue?: Delta | Op[];
   disabled?: boolean;
   innerRef?: RefObject<Quill | null>;
   variant?: "create" | "update";
 }
+
+// const EDITOR_KEYWORD = "Editor,";
 
 const Editor: React.FC<EditorProps> = ({
   onCancel,
@@ -34,11 +38,38 @@ const Editor: React.FC<EditorProps> = ({
   innerRef,
   variant = "create",
 }) => {
+  // If we type something, 'quillRef' below will NOT rerender. We need a separate type of control for things that we want to show differently
+  const [text, setText] = useState("");
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<Quill | null>(null);
+
+  const submitRef = useRef(onSubmit);
+  const placeholderRef = useRef(placeholder);
+  const defaultValueRef = useRef(defaultValue);
+  const disabledRef = useRef(disabled);
+
+  useLayoutEffect(() => {
+    // console.log(EDITOR_KEYWORD, "layout effect");
+
+    submitRef.current = onSubmit;
+    placeholderRef.current = placeholder;
+    defaultValueRef.current = defaultValue;
+    disabledRef.current = disabled;
+  });
+
+  // Refs are to be used inside an useEffect.
+
+  //  Everything else should be used via normal regular props.
+
+  // console.log("INNER REF", innerRef);
 
   useEffect(() => {
+    // console.log(EDITOR_KEYWORD, "useEffect");
+
     if (!containerRef.current) {
-      console.log("No ref");
+      // console.log(EDITOR_KEYWORD, "useEffect, return");
       return;
     }
 
@@ -50,33 +81,108 @@ const Editor: React.FC<EditorProps> = ({
 
     const options: QuillOptions = {
       theme: "snow",
+      placeholder: placeholderRef.current,
+      modules: {
+        toolbar: [
+          ["bold", "italic", "strike"],
+          ["link"],
+          [{ list: "ordered" }, { list: "bullet" }],
+        ],
+        keyboard: {
+          bindings: {
+            enter: {
+              key: "Enter",
+              handler: () => {
+                // TODO: Submit form
+                return;
+              },
+            },
+            shift_enter: {
+              key: "Enter",
+              shiftKey: true,
+              handler: () => {
+                quill.insertText(quill.getSelection()?.index || 0, "\n");
+              },
+            },
+          },
+        },
+      },
     };
 
     // console.log("Container", container);
     // console.log("Editor container", editorContainer);
 
-    new Quill(editorContainer, options);
+    const quill = new Quill(editorContainer, options);
+    quillRef.current = quill;
+    quillRef.current.focus();
+
+    if (innerRef) {
+      // to controll Quill with the same way from outside of the component
+      innerRef.current = quill;
+    }
+
+    quill.setContents(defaultValueRef.current);
+    setText(quill.getText());
+
+    quill.on(Quill.events.TEXT_CHANGE, () => {
+      setText(quill.getText());
+    });
 
     return () => {
-      // console.log("CLEANUP");
+      // console.log(EDITOR_KEYWORD, "Cleanup");
+      quill.off(Quill.events.TEXT_CHANGE);
+
       if (container) {
-        // console.log("CLEANUP_IS CONTAINER");
+        // console.log(EDITOR_KEYWORD, "Cleanup", "Is container");
         container.innerHTML = "";
       }
+
+      if (quillRef.current) {
+        // console.log(EDITOR_KEYWORD, "Cleanup", "is quillRef.current");
+        quillRef.current = null;
+      }
+
+      if (innerRef) {
+        // console.log(EDITOR_KEYWORD, "Cleanup", "Is inneref");
+        innerRef.current = null;
+      }
     };
-  }, []);
+  }, [innerRef]);
+
+  const toggleToolbar = () => {
+    setIsToolbarVisible((current) => !current);
+    const toolbarElement = containerRef?.current?.querySelector(".ql-toolbar");
+
+    if (toolbarElement) {
+      toolbarElement.classList.toggle("hidden");
+    }
+  };
+
+  // We have to remove some things inside of the texts that are considered empty, but technically have some elements.
+
+  // When you initiate the quill editor,its default value might be something like an empty paragraph: <p></p>
+
+  // This is empty technically, but if we read the text it is not empty: "<p></p>"
+
+  // We have to add a regex to remove all of this elements and after that check if it is an empty.
+
+  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+
+  // console.log("Editor rendering");
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white">
         <div ref={containerRef} className="border h-full ql-custom" />
         <div className="flex p-2 pb-2 z-[5]">
-          <Hint label="Hide formatting">
+          <Hint
+            label={isToolbarVisible ? "Hide formatting" : "Show formatting"}
+          >
             <Button
               size="iconSm"
-              disabled={false}
+              disabled={disabled}
               variant="ghost"
-              onClick={() => {}}
+              onClick={toggleToolbar}
             >
               <PiTextAa className="size-4" />
             </Button>
@@ -85,7 +191,7 @@ const Editor: React.FC<EditorProps> = ({
           <Hint label="Emoji">
             <Button
               size="iconSm"
-              disabled={false}
+              disabled={disabled}
               variant="ghost"
               onClick={() => {}}
             >
@@ -99,12 +205,12 @@ const Editor: React.FC<EditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => {}}
-                disabled={false}
+                disabled={disabled}
               >
                 Cancel
               </Button>
               <Button
-                disabled={false}
+                disabled={disabled || isEmpty}
                 onClick={() => {}}
                 size="sm"
                 className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
@@ -118,7 +224,7 @@ const Editor: React.FC<EditorProps> = ({
             <Hint label="Image">
               <Button
                 size="iconSm"
-                disabled={false}
+                disabled={disabled}
                 variant="ghost"
                 onClick={() => {}}
               >
@@ -129,10 +235,15 @@ const Editor: React.FC<EditorProps> = ({
 
           {variant === "create" ? (
             <Button
-              disabled={false}
+              disabled={disabled || isEmpty}
               onClick={() => {}}
               size="iconSm"
-              className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              className={cn(
+                "ml-auto",
+                isEmpty
+                  ? "bg-white hover:bg-white text-muted-foreground"
+                  : "bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              )}
             >
               <MdSend size={4} />
             </Button>
