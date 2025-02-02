@@ -7,10 +7,12 @@ import { Delta, Op } from "quill/core";
 import Quill, { type QuillOptions } from "quill";
 import "quill/dist/quill.snow.css";
 
-import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 import Hint from "./hint";
-import { Button } from "./ui/button";
+import { EmojiPopover } from "./emoji-popover";
+
+import { cn } from "@/lib/utils";
 
 type EditorValue = {
   image: File | null;
@@ -27,8 +29,6 @@ interface EditorProps {
   variant?: "create" | "update";
 }
 
-// const EDITOR_KEYWORD = "Editor,";
-
 const Editor: React.FC<EditorProps> = ({
   onCancel,
   onSubmit,
@@ -40,6 +40,7 @@ const Editor: React.FC<EditorProps> = ({
 }) => {
   // If we type something, 'quillRef' below will NOT rerender. We need a separate type of control for things that we want to show differently
   const [text, setText] = useState("");
+
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,25 +52,16 @@ const Editor: React.FC<EditorProps> = ({
   const disabledRef = useRef(disabled);
 
   useLayoutEffect(() => {
-    // console.log(EDITOR_KEYWORD, "layout effect");
-
     submitRef.current = onSubmit;
     placeholderRef.current = placeholder;
     defaultValueRef.current = defaultValue;
     disabledRef.current = disabled;
   });
 
-  // Refs are to be used inside an useEffect.
-
-  //  Everything else should be used via normal regular props.
-
-  // console.log("INNER REF", innerRef);
+  // Refs are to be used inside an useEffect. Everything else should be used via normal regular props.
 
   useEffect(() => {
-    // console.log(EDITOR_KEYWORD, "useEffect");
-
     if (!containerRef.current) {
-      // console.log(EDITOR_KEYWORD, "useEffect, return");
       return;
     }
 
@@ -109,9 +101,6 @@ const Editor: React.FC<EditorProps> = ({
       },
     };
 
-    // console.log("Container", container);
-    // console.log("Editor container", editorContainer);
-
     const quill = new Quill(editorContainer, options);
     quillRef.current = quill;
     quillRef.current.focus();
@@ -129,21 +118,17 @@ const Editor: React.FC<EditorProps> = ({
     });
 
     return () => {
-      // console.log(EDITOR_KEYWORD, "Cleanup");
       quill.off(Quill.events.TEXT_CHANGE);
 
       if (container) {
-        // console.log(EDITOR_KEYWORD, "Cleanup", "Is container");
         container.innerHTML = "";
       }
 
       if (quillRef.current) {
-        // console.log(EDITOR_KEYWORD, "Cleanup", "is quillRef.current");
         quillRef.current = null;
       }
 
       if (innerRef) {
-        // console.log(EDITOR_KEYWORD, "Cleanup", "Is inneref");
         innerRef.current = null;
       }
     };
@@ -166,9 +151,14 @@ const Editor: React.FC<EditorProps> = ({
 
   // We have to add a regex to remove all of this elements and after that check if it is an empty.
 
-  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+  const onEmojiSelect = (emoji: any) => {
+    const quill = quillRef.current;
 
-  // console.log("Editor rendering");
+    // What is last character's index? If there is none, index will be 0
+    quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
+  };
+
+  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   return (
     <div className="flex flex-col">
@@ -188,16 +178,11 @@ const Editor: React.FC<EditorProps> = ({
             </Button>
           </Hint>
 
-          <Hint label="Emoji">
-            <Button
-              size="iconSm"
-              disabled={disabled}
-              variant="ghost"
-              onClick={() => {}}
-            >
+          <EmojiPopover onEmojiSelect={onEmojiSelect}>
+            <Button size="iconSm" disabled={disabled} variant="ghost">
               <Smile className="size-4" />
             </Button>
-          </Hint>
+          </EmojiPopover>
 
           {variant === "update" ? (
             <div className="ml-auto flex items-center gap-x-2">
@@ -250,11 +235,19 @@ const Editor: React.FC<EditorProps> = ({
           ) : null}
         </div>
       </div>
-      <div className="p-2 text-muted-foreground text-[10px flex justify-end">
-        <p>
-          <strong>Shift + Return</strong> to add a new line
-        </p>
-      </div>
+
+      {variant === "create" ? (
+        <div
+          className={cn(
+            "p-2 text-muted-foreground text-[10px flex justify-end opacity-0 transition",
+            !isEmpty ? "opacity-100" : ""
+          )}
+        >
+          <p>
+            <strong>Shift + Return</strong> to add a new line
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };

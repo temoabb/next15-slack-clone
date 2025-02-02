@@ -32,9 +32,6 @@ function ChannelIdPage() {
     );
   }
 
-  // console.log("ChannelId PAGE rendering");
-  // console.log("ChannelId Page, channelLoading", channelLoading);
-
   return (
     <div className="flex flex-col h-full">
       <Header title={channel.name} />
