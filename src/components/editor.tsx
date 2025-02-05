@@ -1,10 +1,11 @@
+import Image from "next/image";
 import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ImageIcon, Smile } from "lucide-react";
+import { ImageIcon, Smile, XIcon } from "lucide-react";
+
+import Quill, { type QuillOptions } from "quill";
 import { PiTextAa } from "react-icons/pi";
 import { MdSend } from "react-icons/md";
-
 import { Delta, Op } from "quill/core";
-import Quill, { type QuillOptions } from "quill";
 import "quill/dist/quill.snow.css";
 
 import { Button } from "./ui/button";
@@ -38,13 +39,16 @@ const Editor: React.FC<EditorProps> = ({
   innerRef,
   variant = "create",
 }) => {
-  // If we type something, 'quillRef' below will NOT rerender. We need a separate type of control for things that we want to show differently
+  // If we type something, 'quillRef' below will NOT rerender.
+  // We need a separate type of control for things that we want to show differently:
   const [text, setText] = useState("");
 
+  const [image, setImage] = useState<File | null>(null);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
+  const imageElementRef = useRef<HTMLInputElement>(null);
 
   const submitRef = useRef(onSubmit);
   const placeholderRef = useRef(placeholder);
@@ -58,7 +62,8 @@ const Editor: React.FC<EditorProps> = ({
     disabledRef.current = disabled;
   });
 
-  // Refs are to be used inside an useEffect. Everything else should be used via normal regular props.
+  // Refs are to be used inside an useEffect.
+  // Everything else should be used via normal regular props.
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -85,8 +90,22 @@ const Editor: React.FC<EditorProps> = ({
             enter: {
               key: "Enter",
               handler: () => {
-                // TODO: Submit form
-                return;
+                // Here we do not need to call the quillRef.
+                // We have access to the actual quill, which is below.
+
+                // 'options' is an argument for initializing a new Quill.
+
+                const text = quill.getText();
+                const addedImage = imageElementRef.current?.files?.[0] || null;
+
+                const isEmpty =
+                  !addedImage &&
+                  text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+
+                if (isEmpty) return;
+
+                const body = JSON.stringify(quill.getContents());
+                submitRef.current?.({ body, image: addedImage });
               },
             },
             shift_enter: {
@@ -106,8 +125,7 @@ const Editor: React.FC<EditorProps> = ({
     quillRef.current.focus();
 
     if (innerRef) {
-      // to controll Quill with the same way from outside of the component
-      innerRef.current = quill;
+      innerRef.current = quill; // to controll Quill with the same way from outside of the component
     }
 
     quill.setContents(defaultValueRef.current);
@@ -144,11 +162,8 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   // We have to remove some things inside of the texts that are considered empty, but technically have some elements.
-
   // When you initiate the quill editor,its default value might be something like an empty paragraph: <p></p>
-
   // This is empty technically, but if we read the text it is not empty: "<p></p>"
-
   // We have to add a regex to remove all of this elements and after that check if it is an empty.
 
   const onEmojiSelect = (emoji: any) => {
@@ -158,13 +173,54 @@ const Editor: React.FC<EditorProps> = ({
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
   };
 
-  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+  const isEmpty = !image && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white">
+      <input
+        type="file"
+        accept="image/*"
+        ref={imageElementRef}
+        onChange={(event) => setImage(event.target.files![0])}
+        className="hidden"
+      />
+
+      <div
+        className={cn(
+          "flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white",
+          disabled && "opacity-50"
+        )}
+      >
         <div ref={containerRef} className="border h-full ql-custom" />
+
+        {/* VIEW chosen image */}
+        {!!image ? (
+          <div className="p-2 border-green-500 ">
+            <div className="relative size-[62px] flex items-center justify-center group/image">
+              <Hint label="Remove image">
+                <button
+                  className="hidden group-hover/image:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+                  onClick={() => {
+                    setImage(null);
+                    imageElementRef.current!.value = "";
+                  }}
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              </Hint>
+
+              <Image
+                src={URL.createObjectURL(image)}
+                alt="Uploaded"
+                fill
+                className="rounded-xl overflow-hidden border object-cover"
+              />
+            </div>
+          </div>
+        ) : null}
+
         <div className="flex p-2 pb-2 z-[5]">
+          {/* hide / show toolbar */}
           <Hint
             label={isToolbarVisible ? "Hide formatting" : "Show formatting"}
           >
@@ -178,25 +234,32 @@ const Editor: React.FC<EditorProps> = ({
             </Button>
           </Hint>
 
+          {/* hide / show emojis */}
           <EmojiPopover onEmojiSelect={onEmojiSelect}>
             <Button size="iconSm" disabled={disabled} variant="ghost">
               <Smile className="size-4" />
             </Button>
           </EmojiPopover>
 
+          {/* UPDATE: cancel / save  */}
           {variant === "update" ? (
             <div className="ml-auto flex items-center gap-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {}}
+                onClick={onCancel}
                 disabled={disabled}
               >
                 Cancel
               </Button>
               <Button
                 disabled={disabled || isEmpty}
-                onClick={() => {}}
+                onClick={() => {
+                  onSubmit({
+                    body: JSON.stringify(quillRef.current?.getContents()),
+                    image,
+                  });
+                }}
                 size="sm"
                 className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
               >
@@ -205,23 +268,31 @@ const Editor: React.FC<EditorProps> = ({
             </div>
           ) : null}
 
+          {/* CREATE: image upload  */}
           {variant === "create" ? (
             <Hint label="Image">
               <Button
                 size="iconSm"
                 disabled={disabled}
                 variant="ghost"
-                onClick={() => {}}
+                // Simulate clicking on the phantom input element above (which is hidden):
+                onClick={() => imageElementRef.current?.click()}
               >
                 <ImageIcon className="size-4" />
               </Button>
             </Hint>
           ) : null}
 
+          {/* CREATE: send */}
           {variant === "create" ? (
             <Button
               disabled={disabled || isEmpty}
-              onClick={() => {}}
+              onClick={() => {
+                onSubmit({
+                  body: JSON.stringify(quillRef.current?.getContents()),
+                  image,
+                });
+              }}
               size="iconSm"
               className={cn(
                 "ml-auto",
