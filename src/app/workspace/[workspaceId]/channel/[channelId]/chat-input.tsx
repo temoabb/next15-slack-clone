@@ -29,11 +29,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ placeholder }) => {
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
-  // To controll Quill with the same way from outside of the child component:
-  const editorRef = useRef<Quill | null>(null);
+  const editorRef = useRef<Quill | null>(null); // To controll Quill with the same way from outside of the child component
 
   const [editorKey, setEditorKey] = useState(0);
-
   const [isPending, setIsPending] = useState(false);
 
   const { mutate: createMessage, isPending: isCreatingMessage } =
