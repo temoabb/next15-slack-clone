@@ -6,6 +6,7 @@ import { Doc, Id } from "../../convex/_generated/dataModel";
 
 import Hint from "./hint";
 import { Thumbnail } from "./thumbnail";
+import { MessageToolbar } from "./message-toolbar";
 
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
@@ -129,6 +130,18 @@ export const Message: React.FC<MessageProps> = ({
           ) : null}
         </div>
       </div>
+
+      {!isEditing ? (
+        <MessageToolbar
+          isAuthor={isAuthor}
+          isPending={false}
+          handleEdit={() => setEditingId(id)}
+          handleThread={() => {}}
+          handleDelete={() => {}}
+          handleReaction={() => {}}
+          hideThreadButton={hideThreadButton}
+        />
+      ) : null}
     </div>
   );
 };
