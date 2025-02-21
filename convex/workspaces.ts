@@ -248,11 +248,9 @@ export const join = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-
     if (!userId) throw new Error("Unauthorized");
 
     const workspace = await ctx.db.get(args.workspaceId);
-
     if (!workspace) throw new Error("Workspace not found");
 
     if (workspace.joinCode !== args.joinCode.toLowerCase())

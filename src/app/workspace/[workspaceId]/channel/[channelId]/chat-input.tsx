@@ -61,7 +61,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ placeholder }) => {
       if (image) {
         const url = await generateUploadUrl({}, { throwError: true });
 
-        if (!url) throw new Error("Url not foun");
+        if (!url) throw new Error("Url not found");
 
         const result = await fetch(url, {
           method: "POST",

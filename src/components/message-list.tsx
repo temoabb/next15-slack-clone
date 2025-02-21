@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Loader } from "lucide-react";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 
 import Message from "./message";
@@ -41,10 +42,21 @@ export const MessageList: React.FC<MessageListProps> = ({
   isLoadingMore,
   canLoadMore,
 }) => {
+  const workspaceId = useWorkspaceId();
+
   const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
 
-  const workspaceId = useWorkspaceId();
-  const { data: currentMember, isLoading } = useCurrentMember({ workspaceId });
+  const { data: currentMember, isLoading: isLoadingCurrentMember } =
+    useCurrentMember({ workspaceId });
+
+  // Added by me
+  if (isLoadingCurrentMember) {
+    return (
+      <div className="h-full flex flex-1 justify-center items-center">
+        <Loader className="animate-spin size-5 text-muted-foreground" />
+      </div>
+    );
+  }
 
   const groupedMessages = data?.reduce(
     (groups, message) => {

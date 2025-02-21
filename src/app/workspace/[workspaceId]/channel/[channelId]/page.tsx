@@ -14,11 +14,11 @@ import { useGetMessages } from "@/features/messages/api/use-get-messages";
 function ChannelIdPage() {
   const channelId = useChannelId();
 
-  const { results, status, loadMore } = useGetMessages({ channelId });
-
   const { data: channel, isLoading: channelLoading } = useGetChannel({
     id: channelId,
   });
+
+  const { results, status, loadMore } = useGetMessages({ channelId });
 
   if (channelLoading || status === "LoadingFirstPage") {
     return (
@@ -40,7 +40,6 @@ function ChannelIdPage() {
   return (
     <div className="flex flex-col h-full">
       <Header title={channel.name} />
-
       <MessageList
         channelName={channel.name}
         channelCreationTime={channel._creationTime}
@@ -49,7 +48,6 @@ function ChannelIdPage() {
         isLoadingMore={status === "LoadingMore"}
         canLoadMore={status === "CanLoadMore"}
       />
-
       <ChatInput placeholder={`Message # ${channel.name}`} />
     </div>
   );
