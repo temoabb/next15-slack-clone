@@ -39,6 +39,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   channelCreationTime,
   variant = "channel",
   data,
+  loadMore,
   isLoadingMore,
   canLoadMore,
 }) => {
@@ -68,10 +69,27 @@ export const MessageList: React.FC<MessageListProps> = ({
       }
 
       groups[dateKey].unshift(message);
+
       return groups;
     },
     {} as Record<string, typeof data>
   );
+
+  // conversation:
+  // 1
+  // 2
+  // 3
+
+  // Fetched messages data (3 is the latest entered value in chat):
+  // [
+  //   { value: 3 },
+  //   { value: 2 },
+  //   { value: 1 }
+  // ]
+
+  // Grouped messages data from the oldest to the latest (since they are unshifted):
+
+  // [{ value: 1 }, { value: 2 }, { value: 3 }];
 
   return (
     <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
@@ -79,7 +97,6 @@ export const MessageList: React.FC<MessageListProps> = ({
         <div key={dateKey}>
           <div className="text-center my-2 relative">
             <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-
             <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
               {formatDateLabel(dateKey)}
             </span>
@@ -92,8 +109,8 @@ export const MessageList: React.FC<MessageListProps> = ({
               prevMessage &&
               prevMessage.user?._id === message.user?._id &&
               differenceInMinutes(
-                new Date(message._creationTime),
-                new Date(prevMessage._creationTime)
+                new Date(message._creationTime), // the later date
+                new Date(prevMessage._creationTime) // the earlier date
               ) < TIME_THRESHOLD;
 
             return (
@@ -121,6 +138,37 @@ export const MessageList: React.FC<MessageListProps> = ({
           })}
         </div>
       ))}
+
+      <div
+        className="h-1"
+        ref={(el) => {
+          if (el) {
+            const observer = new IntersectionObserver(
+              ([entry]) => {
+                if (entry.isIntersecting && canLoadMore) {
+                  loadMore();
+                }
+              },
+              {
+                threshold: 1.0,
+              }
+            );
+
+            observer.observe(el);
+
+            return () => observer.disconnect();
+          }
+        }}
+      />
+
+      {isLoadingMore ? (
+        <div className="text-center my-2 relative">
+          <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
+          <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+            <Loader className="size-5 animate-spin" />
+          </span>
+        </div>
+      ) : null}
 
       {variant === "channel" && channelName && channelCreationTime ? (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
