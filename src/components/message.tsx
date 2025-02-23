@@ -5,6 +5,7 @@ import { Doc, Id } from "../../convex/_generated/dataModel";
 
 import Hint from "./hint";
 import { Thumbnail } from "./thumbnail";
+import { Reactions } from "./reactions";
 import { MessageToolbar } from "./message-toolbar";
 
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
@@ -13,6 +14,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 
 import { useUpdateMessage } from "@/features/messages/api/use-update-message";
 import { useRemoveMessage } from "@/features/messages/api/use-remove-message";
+import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
 
 import { cn } from "@/lib/utils";
 
@@ -72,12 +74,16 @@ export const Message: React.FC<MessageProps> = ({
   const { mutate: removeMessage, isPending: isRemovingMessage } =
     useRemoveMessage();
 
+  const { mutate: toggleReaction, isPending: isTogglingReaction } =
+    useToggleReaction();
+
   const [ConfirmDialog, confirm] = useConfirm(
     "Delete message",
     "Are you sure you want to delete this message? This cannot be undone."
   );
 
-  const isPending = isUpdatingMessage || isRemovingMessage;
+  const isPending =
+    isUpdatingMessage || isRemovingMessage || isTogglingReaction;
 
   const handleUpdate = ({ body }: { body: string }) => {
     updateMessage(
@@ -108,6 +114,20 @@ export const Message: React.FC<MessageProps> = ({
         },
         onError: () => {
           toast.error("Failed to remove message");
+        },
+      }
+    );
+  };
+
+  const handleReaction = (value: string) => {
+    toggleReaction(
+      {
+        messageId: id,
+        value,
+      },
+      {
+        onError: () => {
+          toast.error("Failed to toggle reaction");
         },
       }
     );
@@ -148,12 +168,16 @@ export const Message: React.FC<MessageProps> = ({
             ) : (
               <div className="flex flex-col w-full">
                 <Renderer value={body} />
+
                 <Thumbnail url={image} />
+
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
                     (edited)
                   </span>
                 ) : null}
+
+                <Reactions data={reactions} onChange={handleReaction} />
               </div>
             )}
           </div>
@@ -165,7 +189,7 @@ export const Message: React.FC<MessageProps> = ({
               handleEdit={() => setEditingId(id)}
               handleThread={() => {}}
               handleDelete={() => handleRemove(id)}
-              handleReaction={() => {}}
+              handleReaction={handleReaction}
               hideThreadButton={hideThreadButton}
             />
           ) : null}
@@ -221,11 +245,16 @@ export const Message: React.FC<MessageProps> = ({
                   </button>
                 </Hint>
               </div>
+
               <Renderer value={body} />
+
               <Thumbnail url={image} />
+
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}
+
+              <Reactions data={reactions} onChange={handleReaction} />
             </div>
           )}
         </div>
@@ -237,7 +266,7 @@ export const Message: React.FC<MessageProps> = ({
             handleEdit={() => setEditingId(id)}
             handleThread={() => {}}
             handleDelete={() => handleRemove(id)}
-            handleReaction={() => {}}
+            handleReaction={handleReaction}
             hideThreadButton={hideThreadButton}
           />
         ) : null}

@@ -119,6 +119,7 @@ export const get = query({
     const page = await Promise.all(
       results.page.map(async (message) => {
         const member = await populateMember(ctx, message.memberId);
+
         const user = member ? await populateUser(ctx, member.userId) : null;
 
         if (!member || !user) {
