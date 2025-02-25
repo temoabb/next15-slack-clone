@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
           </DialogHeader>
 
           <div className="px-4 pb-4 flex flex-col gap-y-2">
-            {/* Edit dialog  */}
+            {/* Edit channel dialog  */}
             <Dialog open={editOpen} onOpenChange={handleEditOpen}>
               <DialogTrigger asChild>
                 <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover:bg-gray-50">

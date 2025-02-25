@@ -3,33 +3,25 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 
-import UserButton from "@/features/auth/components/UserButton";
-
+import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
 import useGetWorkSpaces from "@/features/workspaces/api/use-get-workspaces";
 
-import useCreateWorkspaceModal from "@/features/workspaces/store/use-create-workspace-modal";
+// If component is a client component ("use client") and it is a wrapper on the {children}, it does not mean children and their children need to be a client components.
 
-// If component is a client component ("use client") and it is a wrapper on the {children},
-// it does not mean children and their children need to be a client components.
 // They could be SERVER components too.
 
 export default function Home() {
   const router = useRouter();
-
   const [open, setOpen] = useCreateWorkspaceModal();
 
   const { data, isLoading } = useGetWorkSpaces();
 
-  const workspaceId = useMemo(() => {
-    return data?.[0]?._id;
-  }, [data]);
+  const workspaceId = useMemo(() => data?.[0]?._id, [data]);
 
   useEffect(() => {
     if (isLoading) return;
 
     if (workspaceId) {
-      // console.log("Redirecting to the workspace");
-
       // This is a side-effect
       router.replace(`/workspace/${workspaceId}`);
     } else if (!open) {
@@ -42,8 +34,8 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <UserButton />
+    <div className="h-full flex items-center justify-center">
+      <Loader className="size-6 animate-spin text-muted-foreground" />
     </div>
   );
 }

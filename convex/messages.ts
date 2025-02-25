@@ -188,6 +188,89 @@ export const get = query({
   },
 });
 
+export const getById = query({
+  args: { id: v.id("messages") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) return null;
+
+    const message = await ctx.db.get(args.id);
+
+    if (!message) return null;
+
+    // Confirm if a current user which is trying to ACCESS the message,
+
+    // is a member of this workspace or not:
+
+    const currentMember = await getMember({
+      ctx,
+      userId,
+      workspaceId: message.workspaceId,
+    });
+
+    if (!currentMember) return null;
+
+    // Question: What if the current user is not a part of a specific channel, in which this message was sent?
+
+    // And this is a member which actually WROTE the message:
+    const member = await populateMember(ctx, message.memberId);
+
+    if (!member) {
+      return null; // Confirm if a member, who wrote this message exists
+    }
+
+    const user = await populateUser(ctx, member.userId);
+
+    if (!user) {
+      return null; // Confirm if an user, who wrote this message exists
+    }
+
+    const reactions = await populateReactions(ctx, message._id);
+
+    const reactionsWithCount = reactions.map((reaction) => {
+      return {
+        ...reaction,
+        count: reactions.filter((r) => r.value === reaction.value).length,
+      };
+    });
+
+    const dedupedReactions = reactionsWithCount.reduce(
+      (acc, reaction) => {
+        const existingReaction = acc.find((r) => r.value === reaction.value);
+
+        if (existingReaction) {
+          existingReaction.memberIds = Array.from(
+            new Set([...existingReaction.memberIds, reaction.memberId])
+          );
+        } else {
+          acc.push({ ...reaction, memberIds: [reaction.memberId] });
+        }
+
+        return acc;
+      },
+      [] as (Doc<"reactions"> & {
+        count: number;
+        memberIds: Id<"members">[];
+      })[]
+    );
+
+    const reactionsWithoutMemberIdProperty = dedupedReactions.map(
+      ({ memberId, ...rest }) => rest
+    );
+
+    return {
+      ...message,
+      member,
+      user,
+      reactions: reactionsWithoutMemberIdProperty,
+      image: message.image
+        ? await ctx.storage.getUrl(message.image)
+        : undefined,
+    };
+  },
+});
+
 export const create = mutation({
   args: {
     body: v.string(),

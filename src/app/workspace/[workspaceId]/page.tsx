@@ -16,6 +16,7 @@ import useCurrentMember from "@/features/members/api/use-current-member";
 
 const WorkspaceIdPage = () => {
   const router = useRouter();
+
   const workspaceId = useWorkspaceId();
 
   const [open, setOpen] = useCreateChannelModal();
@@ -33,6 +34,7 @@ const WorkspaceIdPage = () => {
   });
 
   const channelId = useMemo(() => channels?.[0]?._id, [channels]);
+
   const isAdmin = useMemo(() => member?.role === "admin", [member?.role]);
 
   useEffect(() => {

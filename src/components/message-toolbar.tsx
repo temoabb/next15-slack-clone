@@ -36,19 +36,6 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
           </Button>
         </EmojiPopover>
 
-        {!hideThreadButton ? (
-          <Hint label="Reply in thread">
-            <Button
-              onClick={handleThread}
-              variant="ghost"
-              size="iconSm"
-              disabled={isPending}
-            >
-              <MessageSquareTextIcon className="size-4" />
-            </Button>
-          </Hint>
-        ) : null}
-
         {isAuthor ? (
           <Hint label="Edit message">
             <Button
@@ -58,6 +45,19 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
               disabled={isPending}
             >
               <Pencil className="size-4" />
+            </Button>
+          </Hint>
+        ) : null}
+
+        {!hideThreadButton ? (
+          <Hint label="Reply in thread">
+            <Button
+              onClick={handleThread}
+              variant="ghost"
+              size="iconSm"
+              disabled={isPending}
+            >
+              <MessageSquareTextIcon className="size-4" />
             </Button>
           </Hint>
         ) : null}

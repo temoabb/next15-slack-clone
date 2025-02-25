@@ -8,6 +8,7 @@ interface RendererProps {
 
 const Renderer: React.FC<RendererProps> = ({ value }) => {
   const [isEmpty, setIsEmpty] = useState(false);
+
   const rendererRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {

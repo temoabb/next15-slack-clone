@@ -6,7 +6,8 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 const Toolbar = () => {
   const workspaceId = useWorkspaceId();
-  const { data, isLoading } = useGetWorkSpace({ id: workspaceId });
+
+  const { data } = useGetWorkSpace({ id: workspaceId });
 
   return (
     <nav className="bg-[#481349] flex items-center justify-between h-10 p-1.5">

@@ -10,6 +10,7 @@ import { MessageToolbar } from "./message-toolbar";
 
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
+import { usePanel } from "@/hooks/use-panel";
 import { useConfirm } from "@/hooks/use-confirm";
 
 import { useUpdateMessage } from "@/features/messages/api/use-update-message";
@@ -77,6 +78,8 @@ export const Message: React.FC<MessageProps> = ({
   const { mutate: toggleReaction, isPending: isTogglingReaction } =
     useToggleReaction();
 
+  const { parentMessageId, onOpenMessage, onClose } = usePanel();
+
   const [ConfirmDialog, confirm] = useConfirm(
     "Delete message",
     "Are you sure you want to delete this message? This cannot be undone."
@@ -110,7 +113,10 @@ export const Message: React.FC<MessageProps> = ({
       {
         onSuccess: () => {
           toast.success("Message removed");
-          // TODO: Close thread if opened (if a thread of same message is opened, we have to close it, since that message was deleted by us)
+
+          if (parentMessageId === id) {
+            onClose();
+          }
         },
         onError: () => {
           toast.error("Failed to remove message");
@@ -133,7 +139,13 @@ export const Message: React.FC<MessageProps> = ({
     );
   };
 
-  // If the same user sends a message NOT even MINUTES apart, the second message of that user and any subsequent message after that will be a COMPACT MESSAGE.
+  const handleThread = () => {
+    onOpenMessage(id);
+  };
+
+  // If the same user sends a message NOT even MINUTES apart,
+  // the second message of that user and any subsequent message after that will be a COMPACT MESSAGE.
+
   // We do not want to see user's name and an image so many times if they are writing in a very short interval.
 
   if (isCompact) {
@@ -187,7 +199,7 @@ export const Message: React.FC<MessageProps> = ({
               isAuthor={isAuthor}
               isPending={isPending}
               handleEdit={() => setEditingId(id)}
-              handleThread={() => {}}
+              handleThread={handleThread}
               handleDelete={() => handleRemove(id)}
               handleReaction={handleReaction}
               hideThreadButton={hideThreadButton}
@@ -203,6 +215,7 @@ export const Message: React.FC<MessageProps> = ({
   return (
     <>
       <ConfirmDialog />
+
       <div
         className={cn(
           "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
@@ -264,7 +277,7 @@ export const Message: React.FC<MessageProps> = ({
             isAuthor={isAuthor}
             isPending={isPending}
             handleEdit={() => setEditingId(id)}
-            handleThread={() => {}}
+            handleThread={handleThread}
             handleDelete={() => handleRemove(id)}
             handleReaction={handleReaction}
             hideThreadButton={hideThreadButton}
