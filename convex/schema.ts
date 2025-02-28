@@ -28,7 +28,6 @@ const schema = defineSchema({
   // 1:1 conversations, direct messages
   conversations: defineTable({
     workspaceId: v.id("workspaces"),
-
     memberOneId: v.id("members"), // It does not matter which one is the first and which one is the second
     memberTwoId: v.id("members"),
   }).index("by_workspace_id", ["workspaceId"]),

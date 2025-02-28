@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+
 import { cn } from "@/lib/utils";
 
 const userItemVariants = cva(

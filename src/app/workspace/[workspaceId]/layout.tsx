@@ -36,12 +36,10 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
         <Sidebar />
 
         <ResizablePanelGroup
-          id="panel-group"
           direction="horizontal"
           autoSaveId="slack-workspace-layout"
         >
           <ResizablePanel
-            id="sidebarPanel"
             defaultSize={20}
             minSize={11}
             className="bg-[#5e2c5f]"
@@ -49,16 +47,14 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
             <WorkspaceSidebar />
           </ResizablePanel>
 
-          <ResizableHandle id="sidebat-handle" withHandle />
+          <ResizableHandle withHandle />
 
-          <ResizablePanel id="main-conversation-panel" minSize={20}>
-            {children}
-          </ResizablePanel>
+          <ResizablePanel minSize={20}>{children}</ResizablePanel>
 
           {showPanel ? (
             <>
-              <ResizableHandle id="threads-panel-handle" withHandle />
-              <ResizablePanel id="threads-panel" minSize={20} defaultSize={29}>
+              <ResizableHandle withHandle />
+              <ResizablePanel minSize={20} defaultSize={29}>
                 {parentMessageId ? (
                   <Thread
                     messageId={parentMessageId as Id<"messages">}
