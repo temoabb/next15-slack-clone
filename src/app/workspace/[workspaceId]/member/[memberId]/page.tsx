@@ -19,8 +19,7 @@ const MemberIdPage = () => {
   const [conversationId, setConversationId] =
     useState<Id<"conversations"> | null>(null);
 
-  const { mutate, isPending: isGettingOrCreatingConversation } =
-    useCreateOrGetConversation();
+  const { mutate, isPending } = useCreateOrGetConversation();
 
   useEffect(
     function getOrCreateConversation() {
@@ -42,7 +41,7 @@ const MemberIdPage = () => {
     [mutate, memberId, workspaceId]
   );
 
-  if (isGettingOrCreatingConversation) {
+  if (isPending) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader className="size-6 animate-spin text-muted-foreground" />
@@ -61,7 +60,7 @@ const MemberIdPage = () => {
     );
   }
 
-  return <Conversation id={conversationId} />;
+  return <Conversation conversationId={conversationId} />;
 };
 
 export default MemberIdPage;

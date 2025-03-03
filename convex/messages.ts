@@ -86,6 +86,7 @@ export const get = query({
     channelId: v.optional(v.id("channels")),
     conversationId: v.optional(v.id("conversations")),
     parentMessageId: v.optional(v.id("messages")),
+
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {

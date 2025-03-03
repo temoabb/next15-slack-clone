@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Loader } from "lucide-react";
+import { Id } from "../../convex/_generated/dataModel";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 
 import Message from "./message";
 import ChannelHero from "./channel-hero";
+import ConversationHero from "./conversation-hero";
 
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+
 import useCurrentMember from "@/features/members/api/use-current-member";
 import { GetMessagesReturnType } from "@/features/messages/api/use-get-messages";
-
-import { Id } from "../../convex/_generated/dataModel";
 
 const formatDateLabel = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -172,6 +173,10 @@ export const MessageList: React.FC<MessageListProps> = ({
 
       {variant === "channel" && channelName && channelCreationTime ? (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
+      ) : null}
+
+      {variant === "conversation" ? (
+        <ConversationHero name={memberName} image={memberImage} />
       ) : null}
     </div>
   );
