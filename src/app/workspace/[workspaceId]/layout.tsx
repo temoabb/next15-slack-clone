@@ -1,5 +1,6 @@
 "use client";
 import { Loader } from "lucide-react";
+
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import {
@@ -14,16 +15,17 @@ import WorkspaceSidebar from "./workspace-sidebar";
 
 import { usePanel } from "@/hooks/use-panel";
 
-import Thread from "@/features/messages/components/thread";
+import { Thread } from "@/features/messages/components/thread";
+import { Profile } from "@/features/members/components/profile";
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
 }
 
 const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
-  const { parentMessageId, onClose } = usePanel();
+  const { parentMessageId, profileMemberId, onClose } = usePanel();
 
-  const showThreadsPanel = !!parentMessageId;
+  const showThreadsOrProfilePanel = !!parentMessageId || !!profileMemberId;
 
   // Toolbar's (whereas the Search component is) height is 40px.
 
@@ -51,13 +53,18 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
 
           <ResizablePanel minSize={20}>{children}</ResizablePanel>
 
-          {showThreadsPanel ? (
+          {showThreadsOrProfilePanel ? (
             <>
               <ResizableHandle withHandle />
               <ResizablePanel minSize={20} defaultSize={29}>
                 {parentMessageId ? (
                   <Thread
                     messageId={parentMessageId as Id<"messages">}
+                    onClose={onClose}
+                  />
+                ) : profileMemberId ? (
+                  <Profile
+                    memberId={profileMemberId as Id<"members">}
                     onClose={onClose}
                   />
                 ) : (

@@ -44,7 +44,7 @@ const formatDateLabel = (dateStr: string) => {
   return format(date, "EEEE, MMMM d");
 };
 
-const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
+export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
 
@@ -297,5 +297,3 @@ const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
     </div>
   );
 };
-
-export default Thread;

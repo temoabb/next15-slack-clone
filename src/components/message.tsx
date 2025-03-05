@@ -82,7 +82,7 @@ export const Message: React.FC<MessageProps> = ({
   const { mutate: toggleReaction, isPending: isTogglingReaction } =
     useToggleReaction();
 
-  const { parentMessageId, onOpenMessage, onClose } = usePanel();
+  const { parentMessageId, onOpenMessage, onOpenProfile, onClose } = usePanel();
 
   const [ConfirmDialog, confirm] = useConfirm(
     "Delete message",
@@ -147,7 +147,12 @@ export const Message: React.FC<MessageProps> = ({
     onOpenMessage(id);
   };
 
+  const handleProfile = () => {
+    onOpenProfile(memberId);
+  };
+
   // If the same user sends a message NOT even MINUTES apart,
+
   // the second message of that user and any subsequent message after that will be a COMPACT MESSAGE.
 
   // We do not want to see user's name and an image so many times if they are writing in a very short interval.
@@ -156,6 +161,7 @@ export const Message: React.FC<MessageProps> = ({
     return (
       <>
         <ConfirmDialog />
+
         <div
           className={cn(
             "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
@@ -236,7 +242,7 @@ export const Message: React.FC<MessageProps> = ({
         )}
       >
         <div className="flex items-start gap-2">
-          <button>
+          <button onClick={handleProfile}>
             <Avatar>
               <AvatarImage src={authorImage} />
               <AvatarFallback>{avatarFallback}</AvatarFallback>
@@ -257,7 +263,7 @@ export const Message: React.FC<MessageProps> = ({
             <div className="flex flex-col w-full overflow-hiden">
               <div className="text-sm">
                 <button
-                  onClick={() => {}}
+                  onClick={handleProfile}
                   className="font-bold text-primary hover:underline"
                 >
                   {authorName}
