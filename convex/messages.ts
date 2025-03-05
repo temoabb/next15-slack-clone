@@ -30,8 +30,9 @@ const populateThread = async (
   if (messages.length === 0) {
     return {
       count: 0,
-      image: undefined,
       timestamp: 0,
+      image: undefined,
+      name: "",
     };
   }
 
@@ -42,8 +43,9 @@ const populateThread = async (
   if (!lastMessageMember) {
     return {
       count: 0,
-      image: undefined,
       timestamp: 0,
+      image: undefined,
+      name: "",
     };
   }
 
@@ -51,8 +53,9 @@ const populateThread = async (
 
   return {
     count: messages.length,
-    image: lastMessageUser?.image,
     timestamp: lastMessage._creationTime,
+    image: lastMessageUser?.image,
+    name: lastMessageUser?.name,
   };
 };
 
@@ -173,9 +176,10 @@ export const get = query({
           member,
           user,
           reactions: reactionsWithoutMemberIdProperty,
-          threadCount: thread.count,
-          threadImage: thread.image,
-          threadTimestamp: thread.timestamp,
+          threadCount: thread.count, // Messages' length, those which belongs to given 'parentMessageId'
+          threadTimestamp: thread.timestamp, // Message creation date
+          threadName: thread.name, // Last message's author's name
+          threadImage: thread.image, // Last message's author's img
         };
       })
     );

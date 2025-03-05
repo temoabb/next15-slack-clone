@@ -1,9 +1,11 @@
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { format, isToday, isYesterday } from "date-fns";
+
 import { Doc, Id } from "../../convex/_generated/dataModel";
 
 import Hint from "./hint";
+import { ThreadBar } from "./thread-bar";
 import { Thumbnail } from "./thumbnail";
 import { Reactions } from "./reactions";
 import { MessageToolbar } from "./message-toolbar";
@@ -48,6 +50,7 @@ interface MessageProps {
   threadCount?: number;
   threadImage?: string;
   threadTimestamp?: number;
+  threadName?: string;
 }
 
 export const Message: React.FC<MessageProps> = ({
@@ -68,6 +71,7 @@ export const Message: React.FC<MessageProps> = ({
   threadCount,
   threadImage,
   threadTimestamp,
+  threadName,
 }) => {
   const { mutate: updateMessage, isPending: isUpdatingMessage } =
     useUpdateMessage();
@@ -190,6 +194,13 @@ export const Message: React.FC<MessageProps> = ({
                 ) : null}
 
                 <Reactions data={reactions} onChange={handleReaction} />
+                <ThreadBar
+                  count={threadCount}
+                  image={threadImage}
+                  timestamp={threadTimestamp}
+                  name={threadName}
+                  onClick={handleThread}
+                />
               </div>
             )}
           </div>
@@ -268,6 +279,14 @@ export const Message: React.FC<MessageProps> = ({
               ) : null}
 
               <Reactions data={reactions} onChange={handleReaction} />
+
+              <ThreadBar
+                count={threadCount}
+                image={threadImage}
+                timestamp={threadTimestamp}
+                name={threadName}
+                onClick={handleThread}
+              />
             </div>
           )}
         </div>

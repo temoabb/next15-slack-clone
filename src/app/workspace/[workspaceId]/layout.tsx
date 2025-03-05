@@ -21,9 +21,9 @@ interface WorkspaceIdLayoutProps {
 }
 
 const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
-  const { parentMessageId, onOpenMessage, onClose } = usePanel();
+  const { parentMessageId, onClose } = usePanel();
 
-  const showPanel = !!parentMessageId;
+  const showThreadsPanel = !!parentMessageId;
 
   // Toolbar's (whereas the Search component is) height is 40px.
 
@@ -51,7 +51,7 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
 
           <ResizablePanel minSize={20}>{children}</ResizablePanel>
 
-          {showPanel ? (
+          {showThreadsPanel ? (
             <>
               <ResizableHandle withHandle />
               <ResizablePanel minSize={20} defaultSize={29}>
@@ -61,7 +61,7 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
                     onClose={onClose}
                   />
                 ) : (
-                  // An edge case, but if it happens we will have a fallback here
+                  // An edge case, but if it happens we will have a fallback here:
                   <div className="flex h-full items-center justify-center">
                     <Loader className="size-5 animate-spin text-muted-foreground" />
                   </div>
