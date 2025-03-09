@@ -51,7 +51,9 @@ const WorkspaceIdLayout: React.FC<WorkspaceIdLayoutProps> = ({ children }) => {
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel minSize={20}>{children}</ResizablePanel>
+          <ResizablePanel minSize={20} defaultSize={51}>
+            {children}
+          </ResizablePanel>
 
           {showThreadsOrProfilePanel ? (
             <>

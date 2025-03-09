@@ -20,7 +20,8 @@ export const createOrGet = mutation({
       )
       .unique(); // This is us
 
-    // Question: Is this check below enough? How do we have a guarantee, that the other member belongs to this particular workspace too?
+    // Question: Is this check below enough?
+    // How do we have a guarantee, that the other member belongs to this particular workspace too?
     const otherMember = await ctx.db.get(args.memberId);
 
     if (
@@ -35,7 +36,7 @@ export const createOrGet = mutation({
       .filter((q) => q.eq(q.field("workspaceId"), args.workspaceId))
       .filter((q) =>
         q.or(
-          // Two scenarion depends  who initiated the conversation.
+          // Two scenario depends  who initiated the conversation:
           q.and(
             q.eq(q.field("memberOneId"), currentMember._id),
             q.eq(q.field("memberTwoId"), otherMember._id)

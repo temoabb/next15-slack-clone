@@ -8,6 +8,7 @@ import { useMemberId } from "@/hooks/use-member-id";
 
 import { MessageList } from "@/components/message-list";
 
+import { usePanel } from "@/hooks/use-panel";
 import { useGetMember } from "@/features/members/api/use-get-member";
 import { useGetMessages } from "@/features/messages/api/use-get-messages";
 
@@ -20,6 +21,8 @@ export const Conversation: React.FC<ConversationProps> = ({
 }) => {
   const memberId = useMemberId();
 
+  const { onOpenProfile } = usePanel();
+
   // Note: this is a data of a person who we are trying to communicate:
   const { data: member, isLoading: isMemberLoading } = useGetMember({
     memberId,
@@ -30,6 +33,10 @@ export const Conversation: React.FC<ConversationProps> = ({
     status,
     loadMore,
   } = useGetMessages({ conversationId });
+
+  const handleOpenProfile = () => {
+    onOpenProfile(memberId);
+  };
 
   if (isMemberLoading || status === "LoadingFirstPage") {
     return (
@@ -44,7 +51,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       <Header
         memberImage={member?.user.image}
         memberName={member?.user.name}
-        onClick={() => {}}
+        onClick={handleOpenProfile}
       />
 
       <MessageList
