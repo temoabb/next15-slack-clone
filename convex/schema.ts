@@ -36,10 +36,19 @@ const schema = defineSchema({
     body: v.string(),
     memberId: v.id("members"),
     workspaceId: v.id("workspaces"),
+
     image: v.optional(v.id("_storage")),
     channelId: v.optional(v.id("channels")),
     parentMessageId: v.optional(v.id("messages")),
     conversationId: v.optional(v.id("conversations")),
+
+    originalAuthorMemberId: v.optional(v.id("members")),
+    originalMessageId: v.optional(v.id("messages")),
+    originTitle: v.optional(
+      v.union(v.literal("channel"), v.literal("conversation"))
+    ),
+    originId: v.optional(v.union(v.id("channels"), v.id("conversations"))),
+
     updatedAt: v.optional(v.number()),
   })
     .index("by_workspace_id", ["workspaceId"])
