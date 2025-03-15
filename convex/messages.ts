@@ -84,6 +84,37 @@ const getMember = async ({
     .unique();
 };
 
+const getConversation = async ({
+  ctx,
+  memberId,
+  workspaceId,
+  currentMemberId,
+}: {
+  ctx: QueryCtx;
+  workspaceId: Id<"workspaces">;
+  currentMemberId: Id<"members">;
+  memberId: Id<"members">;
+}) => {
+  const existingConversation = await ctx.db
+    .query("conversations")
+    .filter((q) => q.eq(q.field("workspaceId"), workspaceId))
+    .filter((q) =>
+      q.or(
+        q.and(
+          q.eq(q.field("memberOneId"), currentMemberId),
+          q.eq(q.field("memberTwoId"), memberId)
+        ),
+        q.and(
+          q.eq(q.field("memberOneId"), memberId),
+          q.eq(q.field("memberTwoId"), currentMemberId)
+        )
+      )
+    )
+    .unique();
+
+  return existingConversation;
+};
+
 export const get = query({
   args: {
     channelId: v.optional(v.id("channels")),
@@ -332,12 +363,14 @@ export const create = mutation({
 
 export const forward = mutation({
   args: {
-    messageId: v.id("messages"),
+    body: v.string(), // One's comment about forwarded message:
     workspaceId: v.id("workspaces"),
-    originalAuthorMemberId: v.id("members"),
 
-    destintionChannelId: v.optional(v.id("channels")),
+    forwardedMessageId: v.id("messages"),
+    forwardedMessageAuthorMemberId: v.id("members"),
+
     destinationMemberId: v.optional(v.id("members")),
+    destintionChannelId: v.optional(v.id("channels")),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -350,112 +383,153 @@ export const forward = mutation({
       workspaceId: args.workspaceId,
     });
 
-    if (!currentMember) throw new Error("Unauthorized");
-
-    const originalAuthorMember = await ctx.db.get(args.originalAuthorMemberId);
-
-    if (
-      !originalAuthorMember ||
-      originalAuthorMember.workspaceId !== args.workspaceId
-    )
+    if (!currentMember) {
       throw new Error("Unauthorized");
+    }
 
-    const message = await ctx.db.get(args.messageId);
+    const currentUser = await populateUser(ctx, userId);
 
-    if (!message) throw new Error("Message not found");
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
 
-    // TODO: we can forward a forwarded message too
-    if (message.originalAuthorMemberId)
-      throw new Error("Can not forward a forwarded message");
+    const forwardedMessageAuthorMember = await ctx.db.get(
+      args.forwardedMessageAuthorMemberId
+    );
 
     if (
-      message.memberId !== originalAuthorMember._id ||
-      message.workspaceId !== args.workspaceId
-    )
-      throw new Error("Can not forward a message in current workspace");
+      !forwardedMessageAuthorMember ||
+      forwardedMessageAuthorMember.workspaceId !== args.workspaceId
+    ) {
+      throw new Error("Author not found");
+    }
 
-    const requiredMessageProperties = {
-      body: message.body,
+    const forwardedMessage = await ctx.db.get(args.forwardedMessageId);
+
+    // TODO: we cuold forward a forwarded message too (Or maybe we can just edit additional body?)
+    if (!forwardedMessage || forwardedMessage.originInfo) {
+      throw new Error("Message not found or could not be forwarded");
+    }
+
+    if (
+      forwardedMessage.memberId !== forwardedMessageAuthorMember._id ||
+      forwardedMessage.workspaceId !== args.workspaceId
+    ) {
+      throw new Error("Can not forward a message in a current workspace");
+    }
+
+    if (!(forwardedMessage.channelId || forwardedMessage.conversationId)) {
+      throw new Error("Unknown origin info");
+    }
+
+    const forwardedMessageAuthorUser = await ctx.db.get(
+      forwardedMessageAuthorMember.userId
+    );
+
+    if (!forwardedMessageAuthorUser) {
+      throw new Error("User not found");
+    }
+
+    let originDetails: {
+      id: Id<"channels"> | Id<"conversations">;
+      title: "channels" | "conversations";
+      name: string;
+    } | null = {} as any;
+
+    if (forwardedMessage.channelId) {
+      const originChannel = await ctx.db.get(forwardedMessage.channelId);
+
+      if (!originChannel) {
+        throw new Error("Origin channel not found");
+      }
+
+      originDetails!.id = originChannel._id;
+      originDetails!.name = originChannel.name;
+      originDetails!.title = "channels";
+    } else if (forwardedMessage.conversationId) {
+      const originConversation = await ctx.db.get(
+        forwardedMessage.conversationId
+      );
+
+      if (!originConversation) {
+        throw new Error("Origin conversation not found");
+      }
+
+      originDetails!.id = originConversation._id;
+      originDetails!.name = "Direct messages";
+      originDetails!.title = "conversations";
+    } else {
+      throw new Error("Unknown origin info");
+    }
+
+    const commonMessageProperties = {
+      body: args.body,
       memberId: currentMember._id,
       workspaceId: args.workspaceId,
 
-      originalMessageId: args.messageId,
-      originalAuthorMemberId: args.originalAuthorMemberId,
+      originInfo: {
+        messageId: args.forwardedMessageId,
+
+        authorMemberId: forwardedMessageAuthorMember._id,
+        authorName: forwardedMessageAuthorUser.name ?? "",
+        authorImage: forwardedMessageAuthorUser.image ?? undefined,
+
+        messageBody: forwardedMessage.body,
+        messageImage: forwardedMessage.image,
+
+        originId: originDetails!.id,
+        originTitle: originDetails!.title,
+
+        _creationTime: forwardedMessage._creationTime,
+        updatedAt: forwardedMessage.updatedAt,
+      },
     };
 
     if (args.destintionChannelId) {
-      const destinationChannel = await ctx.db.get(args.destintionChannelId);
+      const channel = await ctx.db.get(args.destintionChannelId);
 
-      if (
-        !destinationChannel ||
-        destinationChannel.workspaceId !== args.workspaceId
-      )
-        throw new Error("Channel not found");
+      if (!channel || channel.workspaceId !== args.workspaceId) {
+        throw new Error("Destination channel not found");
+      }
 
       const messageId = await ctx.db.insert("messages", {
-        ...requiredMessageProperties,
-
+        ...commonMessageProperties,
         channelId: args.destintionChannelId,
-        originTitle: "channel",
-        originId: message.channelId,
       });
 
       return messageId;
     } else if (args.destinationMemberId) {
-      const destinationMember = await ctx.db.get(args.destinationMemberId);
+      const member = await ctx.db.get(args.destinationMemberId);
 
-      if (
-        !destinationMember ||
-        destinationMember.workspaceId !== args.workspaceId
-      ) {
+      if (!member || member.workspaceId !== args.workspaceId) {
         throw new Error("Unauthorized");
       }
 
-      const existingConversation = await ctx.db
-        .query("conversations")
-        .filter((q) => q.eq(q.field("workspaceId"), args.workspaceId))
-        .filter((q) =>
-          q.or(
-            q.and(
-              q.eq(q.field("memberOneId"), currentMember._id),
-              q.eq(q.field("memberTwoId"), destinationMember._id)
-            ),
-            q.and(
-              q.eq(q.field("memberOneId"), destinationMember._id),
-              q.eq(q.field("memberTwoId"), currentMember._id)
-            )
-          )
-        )
-        .unique();
+      const conversation = await getConversation({
+        ctx,
+        workspaceId: args.workspaceId,
+        memberId: member._id,
+        currentMemberId: currentMember._id,
+      });
 
-      if (existingConversation) {
+      if (conversation) {
         const messageId = await ctx.db.insert("messages", {
-          ...requiredMessageProperties,
-          conversationId: existingConversation._id,
-
-          originTitle: "conversation",
-          originId: message.conversationId,
+          ...commonMessageProperties,
+          conversationId: conversation._id,
         });
 
         return messageId;
       } else {
         const conversationId = await ctx.db.insert("conversations", {
           memberOneId: currentMember._id,
-          memberTwoId: destinationMember._id,
+          memberTwoId: member._id,
           workspaceId: args.workspaceId,
         });
 
-        if (!conversationId) throw new Error("Conversation not found");
-
         const messageId = await ctx.db.insert("messages", {
-          ...requiredMessageProperties,
+          ...commonMessageProperties,
           conversationId,
-
-          originTitle: "conversation",
-          originId: message.conversationId,
         });
-
-        if (!messageId) throw new Error("Can not create a message");
 
         return messageId;
       }
@@ -478,8 +552,8 @@ export const update = mutation({
 
     if (!message) throw new Error("Message not found");
 
-    if (message.originalAuthorMemberId)
-      throw new Error("Can not edit forwarded message");
+    // TODO: need to edit a forwarded message
+    if (message.originInfo) throw new Error("Can not edit forwarded message");
 
     const member = await getMember({
       ctx,

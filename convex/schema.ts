@@ -42,12 +42,24 @@ const schema = defineSchema({
     parentMessageId: v.optional(v.id("messages")),
     conversationId: v.optional(v.id("conversations")),
 
-    originalAuthorMemberId: v.optional(v.id("members")),
-    originalMessageId: v.optional(v.id("messages")),
-    originTitle: v.optional(
-      v.union(v.literal("channel"), v.literal("conversation"))
+    originInfo: v.optional(
+      v.object({
+        messageId: v.id("messages"),
+
+        authorMemberId: v.id("members"),
+        authorName: v.string(),
+        authorImage: v.optional(v.string()),
+
+        messageBody: v.optional(v.string()),
+        messageImage: v.optional(v.id("_storage")),
+
+        originId: v.union(v.id("channels"), v.id("conversations")),
+        originTitle: v.union(v.literal("channels"), v.literal("conversations")),
+
+        _creationTime: v.number(),
+        updatedAt: v.optional(v.number()),
+      })
     ),
-    originId: v.optional(v.union(v.id("channels"), v.id("conversations"))),
 
     updatedAt: v.optional(v.number()),
   })
