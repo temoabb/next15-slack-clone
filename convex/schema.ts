@@ -15,15 +15,26 @@ const schema = defineSchema({
     userId: v.id("users"),
     workspaceId: v.id("workspaces"),
     role: v.union(v.literal("admin"), v.literal("member")),
+    name: v.string(),
+    image: v.string(),
   })
     .index("by_user_id", ["userId"])
     .index("by_workspace_id", ["workspaceId"])
-    .index("by_workspace_id_user_id", ["workspaceId", "userId"]),
+    .index("by_workspace_id_user_id", ["workspaceId", "userId"])
+    .searchIndex("searchName", {
+      searchField: "name",
+      filterFields: ["workspaceId"],
+    }),
 
   channels: defineTable({
     name: v.string(),
     workspaceId: v.id("workspaces"),
-  }).index("by_workspace_id", ["workspaceId"]),
+  })
+    .index("by_workspace_id", ["workspaceId"])
+    .searchIndex("searchName", {
+      searchField: "name",
+      filterFields: ["workspaceId"],
+    }),
 
   // 1:1 conversations, direct messages
   conversations: defineTable({
@@ -68,8 +79,7 @@ const schema = defineSchema({
     .index("by_channel_id", ["channelId"])
     .index("by_conversation_id", ["conversationId"])
 
-    // If a message at any point has a 'parentMessageId', most definitely that's a message,
-    // that should ONLY be laoded as a REPLY to a certain message.
+    // If a message at any point has a 'parentMessageId', most definitely that's a message, that should ONLY be laoded as a REPLY to a certain message.
     .index("by_parent_message_id", ["parentMessageId"])
 
     // To load threads in channels and in one-on-one conversations
