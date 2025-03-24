@@ -151,7 +151,7 @@ export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
         <div className="flex justify-between items-center px-4 border-b h-[49px]">
           <p className="text-lg font-bold">Thread</p>
           <Button onClick={onClose} size="iconSm" variant="ghost">
-            <XIcon className="size-5 stroke-[1.5] " />
+            <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
         <div className="flex flex-col gap-y-2 items-center justify-center h-full">

@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Info, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandDialog,
@@ -11,17 +11,16 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
-import useGetWorkSpace from "@/features/workspaces/api/use-get-workspace";
+import { Button } from "@/components/ui/button";
 import { DialogTitle } from "@/components/ui/dialog";
+
+import useGetWorkSpace from "@/features/workspaces/api/use-get-workspace";
 import useGetMembers from "@/features/members/api/use-get-members";
 import useGetChannels from "@/features/channels/api/use-get-channels";
-import { DialogDescription } from "@radix-ui/react-dialog";
-import { useRouter } from "next/navigation";
 
 const Toolbar = () => {
   const router = useRouter();
@@ -65,9 +64,12 @@ const Toolbar = () => {
         </Button>
 
         <CommandDialog open={open} onOpenChange={setOpen}>
-          <DialogTitle></DialogTitle>
-          <DialogDescription></DialogDescription>
-          <CommandInput placeholder="Type a command or search..." />
+          <DialogTitle className="p-4">Search member or a channel</DialogTitle>
+
+          {/* <DialogDescription>Description</DialogDescription> */}
+
+          <CommandInput placeholder="Type a member or a channel name..." />
+
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
 

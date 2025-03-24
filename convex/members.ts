@@ -203,3 +203,48 @@ export const remove = mutation({
     return args.id;
   },
 });
+
+// TODO: Add pagination
+export const getMembersAndChannels = query({
+  args: { workspaceId: v.id("workspaces"), searchText: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) return null;
+
+    const normalizedSearch = args.searchText.toLocaleLowerCase();
+
+    const [allMembers, allChannels] = await Promise.all([
+      await ctx.db
+        .query("members")
+        .withSearchIndex("searchName", (q) =>
+          q.search("name", normalizedSearch).eq("workspaceId", args.workspaceId)
+        )
+        .take(10),
+      await ctx.db
+        .query("channels")
+        .withSearchIndex("searchName", (q) =>
+          q.search("name", normalizedSearch).eq("workspaceId", args.workspaceId)
+        )
+        .take(10),
+    ]);
+
+    const members = allMembers.map(({ _id, name, image }) => ({
+      id: _id,
+      name,
+      image,
+      type: "member",
+    }));
+
+    const channels = allChannels.map(({ _id, name }) => ({
+      id: _id,
+      name,
+      type: "channel",
+    }));
+
+    return {
+      members,
+      channels,
+    };
+  },
+});
