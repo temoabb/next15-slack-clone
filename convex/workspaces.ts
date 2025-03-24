@@ -83,10 +83,10 @@ export const create = mutation({
     if (!userId)
       throw new Error("Unauthorized user is trying to create a new workspace");
 
-    // TODO: create a proper method later
     const joinCode = generateCode();
 
     // If we are the user that created a workspace,
+
     // it will be correct to assume that we are the admin and the member of that workspace.
     const workspaceId = await ctx.db.insert("workspaces", {
       name: args.name,
@@ -94,10 +94,16 @@ export const create = mutation({
       joinCode,
     });
 
+    const user = await ctx.db.get(userId);
+
+    if (!user) throw new Error("User not found");
+
     await ctx.db.insert("members", {
       userId,
       workspaceId,
       role: "admin",
+      name: user.name || "",
+      image: user.image ?? "",
     });
 
     await ctx.db.insert("channels", {
@@ -285,9 +291,11 @@ export const join = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
+
     if (!userId) throw new Error("Unauthorized");
 
     const workspace = await ctx.db.get(args.workspaceId);
+
     if (!workspace) throw new Error("Workspace not found");
 
     if (workspace.joinCode !== args.joinCode.toLowerCase())
@@ -302,10 +310,16 @@ export const join = mutation({
 
     if (existingMember) throw new Error("Already a member of this workspace");
 
+    const user = await ctx.db.get(userId);
+
+    if (!user) throw new Error("User not found");
+
     await ctx.db.insert("members", {
       userId,
       workspaceId: workspace._id,
       role: "member",
+      name: user.name || "",
+      image: user.image ?? "",
     });
 
     return workspace._id;
