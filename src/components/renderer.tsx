@@ -42,8 +42,7 @@ const Renderer: React.FC<RendererProps> = ({ value }) => {
     };
   }, [value]);
 
-  // The scenario if someone just sent an image. Renderer will not display anything
-  if (isEmpty) return null;
+  if (isEmpty) return null; // The scenario if someone just sent an image. Renderer will not display anything
 
   return <div ref={rendererRef} className="ql-editor ql-renderer" />;
 };

@@ -1,8 +1,10 @@
 "use client";
+import { useRouter } from "next/navigation";
+
 import { Loader, LogOut } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useCurrentUser from "../api/useCurrentUser";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import useCurrentUser from "../api/useCurrentUser";
+
 const UserButton = () => {
+  const router = useRouter();
+
   const { signOut } = useAuthActions();
   const { data, isLoading } = useCurrentUser();
 
@@ -25,8 +31,11 @@ const UserButton = () => {
   const { name, image } = data;
   const avatarFallback = name!.charAt(0).toUpperCase();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
+
+    // TODO: Sometimes it still causes an error, if user is logged in with Gmail or GitHub
+    router.push("/auth");
   };
 
   return (
