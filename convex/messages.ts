@@ -363,14 +363,18 @@ export const create = mutation({
 
 export const forward = mutation({
   args: {
-    body: v.string(), // One's comment about forwarded message:
+    body: v.optional(v.string()), // One's comment about forwarded message:
     workspaceId: v.id("workspaces"),
 
-    forwardedMessageId: v.id("messages"),
-    forwardedMessageAuthorMemberId: v.id("members"),
+    forwardingMessage: v.object({
+      id: v.id("messages"),
+      authorMemberId: v.id("members"),
+    }),
 
-    destinationMemberId: v.optional(v.id("members")),
-    destintionChannelId: v.optional(v.id("channels")),
+    destination: v.object({
+      memberId: v.optional(v.id("members")),
+      channelId: v.optional(v.id("channels")),
+    }),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -393,37 +397,37 @@ export const forward = mutation({
       throw new Error("User not found");
     }
 
-    const forwardedMessageAuthorMember = await ctx.db.get(
-      args.forwardedMessageAuthorMemberId
+    const forwardingMessageAuthorMember = await ctx.db.get(
+      args.forwardingMessage.authorMemberId
     );
 
     if (
-      !forwardedMessageAuthorMember ||
-      forwardedMessageAuthorMember.workspaceId !== args.workspaceId
+      !forwardingMessageAuthorMember ||
+      forwardingMessageAuthorMember.workspaceId !== args.workspaceId
     ) {
       throw new Error("Author not found");
     }
 
-    const forwardedMessage = await ctx.db.get(args.forwardedMessageId);
+    const forwardingMessage = await ctx.db.get(args.forwardingMessage.id);
 
-    // TODO: we cuold forward a forwarded message too (Or maybe we can just edit additional body?)
-    if (!forwardedMessage || forwardedMessage.originInfo) {
+    // TODO: we could forward a forwarded message too (Or maybe we can just edit additional body?)
+    if (!forwardingMessage || forwardingMessage.forwardedMessage) {
       throw new Error("Message not found or could not be forwarded");
     }
 
     if (
-      forwardedMessage.memberId !== forwardedMessageAuthorMember._id ||
-      forwardedMessage.workspaceId !== args.workspaceId
+      forwardingMessage.memberId !== forwardingMessageAuthorMember._id ||
+      forwardingMessage.workspaceId !== args.workspaceId
     ) {
       throw new Error("Can not forward a message in a current workspace");
     }
 
-    if (!(forwardedMessage.channelId || forwardedMessage.conversationId)) {
+    if (!(forwardingMessage.channelId || forwardingMessage.conversationId)) {
       throw new Error("Unknown origin info");
     }
 
     const forwardedMessageAuthorUser = await ctx.db.get(
-      forwardedMessageAuthorMember.userId
+      forwardingMessageAuthorMember.userId
     );
 
     if (!forwardedMessageAuthorUser) {
@@ -436,8 +440,8 @@ export const forward = mutation({
       name: string;
     } | null = {} as any;
 
-    if (forwardedMessage.channelId) {
-      const originChannel = await ctx.db.get(forwardedMessage.channelId);
+    if (forwardingMessage.channelId) {
+      const originChannel = await ctx.db.get(forwardingMessage.channelId);
 
       if (!originChannel) {
         throw new Error("Origin channel not found");
@@ -446,9 +450,9 @@ export const forward = mutation({
       originDetails!.id = originChannel._id;
       originDetails!.name = originChannel.name;
       originDetails!.title = "channels";
-    } else if (forwardedMessage.conversationId) {
+    } else if (forwardingMessage.conversationId) {
       const originConversation = await ctx.db.get(
-        forwardedMessage.conversationId
+        forwardingMessage.conversationId
       );
 
       if (!originConversation) {
@@ -463,30 +467,35 @@ export const forward = mutation({
     }
 
     const commonMessageProperties = {
-      body: args.body,
+      body: args.body || "",
       memberId: currentMember._id,
       workspaceId: args.workspaceId,
 
-      originInfo: {
-        messageId: args.forwardedMessageId,
+      forwardedMessage: {
+        id: args.forwardingMessage.id,
 
-        authorMemberId: forwardedMessageAuthorMember._id,
-        authorName: forwardedMessageAuthorUser.name ?? "",
-        authorImage: forwardedMessageAuthorUser.image ?? undefined,
+        body: forwardingMessage.body,
+        image: forwardingMessage.image,
 
-        messageBody: forwardedMessage.body,
-        messageImage: forwardedMessage.image,
+        author: {
+          memberId: forwardingMessageAuthorMember._id,
+          name: forwardedMessageAuthorUser.name ?? "",
+          image: forwardedMessageAuthorUser.image ?? undefined,
+        },
 
-        originId: originDetails!.id,
-        originTitle: originDetails!.title,
+        origin: {
+          id: originDetails!.id,
+          title: originDetails!.title,
+        },
 
-        _creationTime: forwardedMessage._creationTime,
-        updatedAt: forwardedMessage.updatedAt,
+        _creationTime: forwardingMessage._creationTime,
+
+        updatedAt: forwardingMessage.updatedAt,
       },
     };
 
-    if (args.destintionChannelId) {
-      const channel = await ctx.db.get(args.destintionChannelId);
+    if (args.destination.channelId) {
+      const channel = await ctx.db.get(args.destination.channelId);
 
       if (!channel || channel.workspaceId !== args.workspaceId) {
         throw new Error("Destination channel not found");
@@ -494,12 +503,12 @@ export const forward = mutation({
 
       const messageId = await ctx.db.insert("messages", {
         ...commonMessageProperties,
-        channelId: args.destintionChannelId,
+        channelId: args.destination.channelId,
       });
 
       return messageId;
-    } else if (args.destinationMemberId) {
-      const member = await ctx.db.get(args.destinationMemberId);
+    } else if (args.destination.memberId) {
+      const member = await ctx.db.get(args.destination.memberId);
 
       if (!member || member.workspaceId !== args.workspaceId) {
         throw new Error("Unauthorized");
@@ -553,7 +562,8 @@ export const update = mutation({
     if (!message) throw new Error("Message not found");
 
     // TODO: need to edit a forwarded message
-    if (message.originInfo) throw new Error("Can not edit forwarded message");
+    if (message.forwardedMessage)
+      throw new Error("Can not edit forwarded message");
 
     const member = await getMember({
       ctx,

@@ -52,27 +52,29 @@ const schema = defineSchema({
     channelId: v.optional(v.id("channels")),
     parentMessageId: v.optional(v.id("messages")),
     conversationId: v.optional(v.id("conversations")),
+    updatedAt: v.optional(v.number()),
 
-    originInfo: v.optional(
+    forwardedMessage: v.optional(
       v.object({
-        messageId: v.id("messages"),
+        id: v.id("messages"),
+        body: v.optional(v.string()),
+        image: v.optional(v.id("_storage")),
 
-        authorMemberId: v.id("members"),
-        authorName: v.string(),
-        authorImage: v.optional(v.string()),
+        author: v.object({
+          memberId: v.id("members"),
+          name: v.string(),
+          image: v.optional(v.string()),
+        }),
 
-        messageBody: v.optional(v.string()),
-        messageImage: v.optional(v.id("_storage")),
-
-        originId: v.union(v.id("channels"), v.id("conversations")),
-        originTitle: v.union(v.literal("channels"), v.literal("conversations")),
+        origin: v.object({
+          id: v.union(v.id("channels"), v.id("conversations")),
+          title: v.union(v.literal("channels"), v.literal("conversations")),
+        }),
 
         _creationTime: v.number(),
         updatedAt: v.optional(v.number()),
       })
     ),
-
-    updatedAt: v.optional(v.number()),
   })
     .index("by_workspace_id", ["workspaceId"])
     .index("by_member_id", ["memberId"])
