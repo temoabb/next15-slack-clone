@@ -201,8 +201,24 @@ export const get = query({
           ({ memberId, ...rest }) => rest
         );
 
+        const updatedForwardedMessage = message.forwardedMessage
+          ? { ...message.forwardedMessage }
+          : null;
+
+        let updatedMessage = { ...message };
+
+        if (updatedForwardedMessage?.image) {
+          const url = (await ctx.storage.getUrl(
+            updatedForwardedMessage.image
+          )) as Id<"_storage">;
+
+          updatedForwardedMessage.image = url;
+
+          updatedMessage.forwardedMessage = updatedForwardedMessage;
+        }
+
         return {
-          ...message,
+          ...updatedMessage,
           image,
           member,
           user,
