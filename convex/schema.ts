@@ -68,7 +68,8 @@ const schema = defineSchema({
 
         origin: v.object({
           id: v.union(v.id("channels"), v.id("conversations")),
-          title: v.union(v.literal("channels"), v.literal("conversations")),
+          type: v.union(v.literal("channels"), v.literal("conversations")),
+          name: v.string(),
         }),
 
         _creationTime: v.number(),

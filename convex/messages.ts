@@ -452,7 +452,7 @@ export const forward = mutation({
 
     let originDetails: {
       id: Id<"channels"> | Id<"conversations">;
-      title: "channels" | "conversations";
+      type: "channels" | "conversations";
       name: string;
     } | null = {} as any;
 
@@ -465,7 +465,7 @@ export const forward = mutation({
 
       originDetails!.id = originChannel._id;
       originDetails!.name = originChannel.name;
-      originDetails!.title = "channels";
+      originDetails!.type = "channels";
     } else if (forwardingMessage.conversationId) {
       const originConversation = await ctx.db.get(
         forwardingMessage.conversationId
@@ -477,7 +477,7 @@ export const forward = mutation({
 
       originDetails!.id = originConversation._id;
       originDetails!.name = "Direct messages";
-      originDetails!.title = "conversations";
+      originDetails!.type = "conversations";
     } else {
       throw new Error("Unknown origin info");
     }
@@ -501,7 +501,8 @@ export const forward = mutation({
 
         origin: {
           id: originDetails!.id,
-          title: originDetails!.title,
+          type: originDetails!.type,
+          name: originDetails!.name,
         },
 
         _creationTime: forwardingMessage._creationTime,

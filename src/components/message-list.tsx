@@ -135,6 +135,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 threadImage={message.threadImage}
                 threadName={message.threadName}
                 threadTimestamp={message.threadTimestamp}
+                forwardedMessage={message.forwardedMessage}
               />
             );
           })}

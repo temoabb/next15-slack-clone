@@ -1,4 +1,10 @@
-import { MessageSquareTextIcon, Pencil, Smile, Trash } from "lucide-react";
+import {
+  MessageSquareTextIcon,
+  Pencil,
+  Smile,
+  Trash,
+  ForwardIcon,
+} from "lucide-react";
 
 import Hint from "./hint";
 import { EmojiPopover } from "./emoji-popover";
@@ -13,6 +19,8 @@ interface MessageToolbarProps {
   handleDelete: () => void;
   handleReaction: (value: string) => void;
   hideThreadButton?: boolean;
+  isForwarded?: boolean;
+  handleForward: () => void;
 }
 
 export const MessageToolbar: React.FC<MessageToolbarProps> = ({
@@ -22,7 +30,9 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
   handleEdit,
   handleReaction,
   handleThread,
+  handleForward,
   hideThreadButton,
+  isForwarded = false,
 }) => {
   return (
     <div className="absolute top-0 right-5">
@@ -36,7 +46,7 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
           </Button>
         </EmojiPopover>
 
-        {isAuthor ? (
+        {isAuthor && !isForwarded ? (
           <Hint label="Edit message">
             <Button
               onClick={handleEdit}
@@ -61,6 +71,17 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
             </Button>
           </Hint>
         ) : null}
+
+        <Hint label="Forward message">
+          <Button
+            onClick={handleForward}
+            variant="ghost"
+            size="iconSm"
+            disabled={isPending}
+          >
+            <ForwardIcon className="size-4" />
+          </Button>
+        </Hint>
 
         {isAuthor ? (
           <Hint label="Delete message">

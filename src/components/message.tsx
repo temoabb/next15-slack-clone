@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { format, isToday, isYesterday } from "date-fns";
-
 import { Doc, Id } from "../../convex/_generated/dataModel";
 
 import Hint from "./hint";
@@ -9,6 +9,7 @@ import { ThreadBar } from "./thread-bar";
 import { Thumbnail } from "./thumbnail";
 import { Reactions } from "./reactions";
 import { MessageToolbar } from "./message-toolbar";
+import ForwardedMessage from "./forwarded-message";
 
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
@@ -18,6 +19,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useUpdateMessage } from "@/features/messages/api/use-update-message";
 import { useRemoveMessage } from "@/features/messages/api/use-remove-message";
 import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
+import ForwardMessageModal from "@/features/messages/components/forward-message-modal";
 
 import { cn } from "@/lib/utils";
 
@@ -51,6 +53,7 @@ interface MessageProps {
   threadImage?: string;
   threadTimestamp?: number;
   threadName?: string;
+  forwardedMessage?: Doc<"messages">["forwardedMessage"];
 }
 
 export const Message: React.FC<MessageProps> = ({
@@ -72,6 +75,7 @@ export const Message: React.FC<MessageProps> = ({
   threadImage,
   threadTimestamp,
   threadName,
+  forwardedMessage,
 }) => {
   const { mutate: updateMessage, isPending: isUpdatingMessage } =
     useUpdateMessage();
@@ -88,6 +92,8 @@ export const Message: React.FC<MessageProps> = ({
     "Delete message",
     "Are you sure you want to delete this message? This cannot be undone."
   );
+
+  const [openForward, setOpenForward] = useState(false);
 
   const isPending =
     isUpdatingMessage || isRemovingMessage || isTogglingReaction;
@@ -151,16 +157,17 @@ export const Message: React.FC<MessageProps> = ({
     onOpenProfile(memberId);
   };
 
-  // If the same user sends a message NOT even MINUTES apart,
-
-  // the second message of that user and any subsequent message after that will be a COMPACT MESSAGE.
-
-  // We do not want to see user's name and an image so many times if they are writing in a very short interval.
-
   if (isCompact) {
     return (
       <>
         <ConfirmDialog />
+
+        <ForwardMessageModal
+          open={openForward}
+          onClose={setOpenForward}
+          forwardingMessageId={id}
+          forwardingMessageAuthorMemberId={memberId}
+        />
 
         <div
           className={cn(
@@ -199,7 +206,23 @@ export const Message: React.FC<MessageProps> = ({
                   </span>
                 ) : null}
 
+                {forwardedMessage ? (
+                  <ForwardedMessage
+                    body={forwardedMessage.body ?? ""}
+                    image={forwardedMessage.image}
+                    createdAt={forwardedMessage._creationTime}
+                    authorName={forwardedMessage.author.name}
+                    authorMemberId={forwardedMessage.author.memberId}
+                    authorImage={forwardedMessage.author.image}
+                    updatedAt={forwardedMessage.updatedAt}
+                    originId={forwardedMessage.origin.id}
+                    originType={forwardedMessage.origin.type}
+                    originName={forwardedMessage.origin.name}
+                  />
+                ) : null}
+
                 <Reactions data={reactions} onChange={handleReaction} />
+
                 <ThreadBar
                   count={threadCount}
                   image={threadImage}
@@ -215,6 +238,7 @@ export const Message: React.FC<MessageProps> = ({
             <MessageToolbar
               isAuthor={isAuthor}
               isPending={isPending}
+              handleForward={() => setOpenForward(true)}
               handleEdit={() => setEditingId(id)}
               handleThread={handleThread}
               handleDelete={() => handleRemove(id)}
@@ -227,11 +251,18 @@ export const Message: React.FC<MessageProps> = ({
     );
   }
 
-  const avatarFallback = authorName.charAt(0).toUpperCase();
+  const avatarFallback = authorName?.charAt(0).toUpperCase() ?? "M";
 
   return (
     <>
       <ConfirmDialog />
+
+      <ForwardMessageModal
+        open={openForward}
+        onClose={setOpenForward}
+        forwardingMessageId={id}
+        forwardingMessageAuthorMemberId={memberId}
+      />
 
       <div
         className={cn(
@@ -268,7 +299,9 @@ export const Message: React.FC<MessageProps> = ({
                 >
                   {authorName}
                 </button>
+
                 <span>&nbsp;&nbsp;</span>
+
                 <Hint label={formatFullTime(new Date(createdAt))}>
                   <button className="text-xs text-muted-foreground hover:underline">
                     {format(new Date(createdAt), "h:mm a")}
@@ -282,6 +315,21 @@ export const Message: React.FC<MessageProps> = ({
 
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
+              ) : null}
+
+              {forwardedMessage ? (
+                <ForwardedMessage
+                  body={forwardedMessage.body ?? ""}
+                  image={forwardedMessage.image}
+                  createdAt={forwardedMessage._creationTime}
+                  authorName={forwardedMessage.author.name}
+                  authorMemberId={forwardedMessage.author.memberId}
+                  authorImage={forwardedMessage.author.image}
+                  updatedAt={forwardedMessage.updatedAt}
+                  originId={forwardedMessage.origin.id}
+                  originType={forwardedMessage.origin.type}
+                  originName={forwardedMessage.origin.name}
+                />
               ) : null}
 
               <Reactions data={reactions} onChange={handleReaction} />
@@ -306,6 +354,7 @@ export const Message: React.FC<MessageProps> = ({
             handleDelete={() => handleRemove(id)}
             handleReaction={handleReaction}
             hideThreadButton={hideThreadButton}
+            handleForward={() => setOpenForward(true)}
           />
         ) : null}
       </div>
@@ -314,3 +363,7 @@ export const Message: React.FC<MessageProps> = ({
 };
 
 export default Message;
+
+// If the same user sends a message NOT even MINUTES apart, the second message of that user and any subsequent message after that will be a COMPACT MESSAGE.
+
+// We do not want to see user's name and an image so many times if they are writing in a very short interval.

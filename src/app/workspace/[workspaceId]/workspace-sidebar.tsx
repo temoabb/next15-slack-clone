@@ -120,7 +120,7 @@ const WorkspaceSidebar = () => {
             <UserItem
               key={item._id}
               id={item._id}
-              label={item.user.name}
+              label={`${item.user.name} ${currentMember._id === item._id ? "(you)" : ""}`}
               image={item.user.image}
               variant={item._id === memberId ? "active" : "default"}
             />
