@@ -212,7 +212,7 @@ export const get = query({
             updatedForwardedMessage.image
           )) as Id<"_storage">;
 
-          updatedForwardedMessage.image = url;
+          updatedForwardedMessage.image = url ?? undefined;
 
           updatedMessage.forwardedMessage = updatedForwardedMessage;
         }
@@ -251,9 +251,7 @@ export const getById = query({
 
     if (!message) return null;
 
-    // Confirm if a current user which is trying to ACCESS the message,
-
-    // is a member of this workspace or not:
+    // Confirm if a current user which is trying to ACCESS the message, is a member of this workspace or not:
 
     const currentMember = await getMember({
       ctx,
@@ -307,17 +305,32 @@ export const getById = query({
       })[]
     );
 
+    let updatedMessage = { ...message };
+
+    const updatedForwardMessage = updatedMessage?.forwardedMessage
+      ? { ...updatedMessage.forwardedMessage }
+      : null;
+
+    if (updatedForwardMessage?.image) {
+      const url = (await ctx.storage.getUrl(
+        updatedForwardMessage.image
+      )) as Id<"_storage">;
+
+      updatedForwardMessage.image = url ?? undefined;
+      updatedMessage.forwardedMessage = updatedForwardMessage;
+    }
+
     const reactionsWithoutMemberIdProperty = dedupedReactions.map(
       ({ memberId, ...rest }) => rest
     );
 
     return {
-      ...message,
+      ...updatedMessage,
       member,
       user,
       reactions: reactionsWithoutMemberIdProperty,
-      image: message.image
-        ? await ctx.storage.getUrl(message.image)
+      image: updatedMessage.image
+        ? await ctx.storage.getUrl(updatedMessage.image)
         : undefined,
     };
   },

@@ -28,7 +28,9 @@ export const Header: React.FC<HeaderProps> = ({
           <AvatarImage src={memberImage} alt="member" />
           <AvatarFallback>{avatarFallback}</AvatarFallback>
         </Avatar>
+
         <span className="text-sm text-muted-foreground">{memberName}</span>
+
         <FaChevronDown className="size-2.5 ml-2" />
       </Button>
     </div>
