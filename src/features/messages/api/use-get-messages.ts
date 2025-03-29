@@ -1,4 +1,4 @@
-import { usePaginatedQuery } from "convex/react";
+import { useConvexAuth, usePaginatedQuery } from "convex/react";
 
 import { api } from "../../../../convex/_generated/api";
 
@@ -20,13 +20,17 @@ export const useGetMessages = ({
   conversationId,
   parentMessageId,
 }: UseGetMessagesProps) => {
+  const { isAuthenticated } = useConvexAuth();
+
   const { results, status, loadMore } = usePaginatedQuery(
     api.messages.get,
-    {
-      channelId,
-      conversationId,
-      parentMessageId,
-    },
+    isAuthenticated
+      ? {
+          channelId,
+          conversationId,
+          parentMessageId,
+        }
+      : "skip",
     {
       initialNumItems: BATCH_SIZE,
     }
