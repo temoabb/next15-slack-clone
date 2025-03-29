@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { toast } from "sonner";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
+
 import { Doc, Id } from "../../convex/_generated/dataModel";
 
 import Hint from "./hint";
@@ -9,7 +10,7 @@ import { ThreadBar } from "./thread-bar";
 import { Thumbnail } from "./thumbnail";
 import { Reactions } from "./reactions";
 import { MessageToolbar } from "./message-toolbar";
-import ForwardedMessage from "./forwarded-message";
+import { ForwardedMessage } from "../features/messages/components/forwarded-message";
 
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
@@ -165,8 +166,13 @@ export const Message: React.FC<MessageProps> = ({
         <ForwardMessageModal
           open={openForward}
           onClose={setOpenForward}
-          forwardingMessageId={id}
-          forwardingMessageAuthorMemberId={memberId}
+          messageId={id}
+          messageBody={body}
+          messageImage={image ?? undefined}
+          authorMemberId={memberId}
+          authorName={authorName}
+          authorImage={authorImage ?? undefined}
+          updatedAt={updatedAt}
         />
 
         <div
@@ -207,18 +213,7 @@ export const Message: React.FC<MessageProps> = ({
                 ) : null}
 
                 {forwardedMessage ? (
-                  <ForwardedMessage
-                    body={forwardedMessage.body ?? ""}
-                    image={forwardedMessage.image}
-                    createdAt={forwardedMessage._creationTime}
-                    authorName={forwardedMessage.author.name}
-                    authorMemberId={forwardedMessage.author.memberId}
-                    authorImage={forwardedMessage.author.image}
-                    updatedAt={forwardedMessage.updatedAt}
-                    originId={forwardedMessage.origin.id}
-                    originType={forwardedMessage.origin.type}
-                    originName={forwardedMessage.origin.name}
-                  />
+                  <ForwardedMessage {...forwardedMessage} />
                 ) : null}
 
                 <Reactions data={reactions} onChange={handleReaction} />
@@ -244,6 +239,7 @@ export const Message: React.FC<MessageProps> = ({
               handleDelete={() => handleRemove(id)}
               handleReaction={handleReaction}
               hideThreadButton={hideThreadButton}
+              showForwardButton={Boolean(!forwardedMessage)}
             />
           ) : null}
         </div>
@@ -260,8 +256,13 @@ export const Message: React.FC<MessageProps> = ({
       <ForwardMessageModal
         open={openForward}
         onClose={setOpenForward}
-        forwardingMessageId={id}
-        forwardingMessageAuthorMemberId={memberId}
+        messageId={id}
+        messageBody={body}
+        authorMemberId={memberId}
+        authorName={authorName}
+        authorImage={authorImage ?? undefined}
+        messageImage={image ?? undefined}
+        updatedAt={updatedAt}
       />
 
       <div
@@ -318,18 +319,7 @@ export const Message: React.FC<MessageProps> = ({
               ) : null}
 
               {forwardedMessage ? (
-                <ForwardedMessage
-                  body={forwardedMessage.body ?? ""}
-                  image={forwardedMessage.image}
-                  createdAt={forwardedMessage._creationTime}
-                  authorName={forwardedMessage.author.name}
-                  authorMemberId={forwardedMessage.author.memberId}
-                  authorImage={forwardedMessage.author.image}
-                  updatedAt={forwardedMessage.updatedAt}
-                  originId={forwardedMessage.origin.id}
-                  originType={forwardedMessage.origin.type}
-                  originName={forwardedMessage.origin.name}
-                />
+                <ForwardedMessage {...forwardedMessage} />
               ) : null}
 
               <Reactions data={reactions} onChange={handleReaction} />
@@ -355,6 +345,7 @@ export const Message: React.FC<MessageProps> = ({
             handleReaction={handleReaction}
             hideThreadButton={hideThreadButton}
             handleForward={() => setOpenForward(true)}
+            showForwardButton={Boolean(!forwardedMessage)}
           />
         ) : null}
       </div>

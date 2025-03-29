@@ -19,7 +19,7 @@ interface MessageToolbarProps {
   handleDelete: () => void;
   handleReaction: (value: string) => void;
   hideThreadButton?: boolean;
-  isForwarded?: boolean;
+  showForwardButton?: boolean;
   handleForward: () => void;
 }
 
@@ -32,7 +32,7 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
   handleThread,
   handleForward,
   hideThreadButton,
-  isForwarded = false,
+  showForwardButton = true,
 }) => {
   return (
     <div className="absolute top-0 right-5">
@@ -46,7 +46,8 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
           </Button>
         </EmojiPopover>
 
-        {isAuthor && !isForwarded ? (
+        {/* TODO: We could edit a message text on forwarded message */}
+        {isAuthor && showForwardButton ? (
           <Hint label="Edit message">
             <Button
               onClick={handleEdit}
@@ -72,16 +73,18 @@ export const MessageToolbar: React.FC<MessageToolbarProps> = ({
           </Hint>
         ) : null}
 
-        <Hint label="Forward message">
-          <Button
-            onClick={handleForward}
-            variant="ghost"
-            size="iconSm"
-            disabled={isPending}
-          >
-            <ForwardIcon className="size-4" />
-          </Button>
-        </Hint>
+        {showForwardButton ? (
+          <Hint label="Forward message">
+            <Button
+              onClick={handleForward}
+              variant="ghost"
+              size="iconSm"
+              disabled={isPending}
+            >
+              <ForwardIcon className="size-4" />
+            </Button>
+          </Hint>
+        ) : null}
 
         {isAuthor ? (
           <Hint label="Delete message">
