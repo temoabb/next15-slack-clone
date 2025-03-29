@@ -233,13 +233,13 @@ export const getMembersAndChannels = query({
       id: _id,
       name,
       image,
-      type: "member",
+      type: "members",
     }));
 
     const channels = allChannels.map(({ _id, name }) => ({
       id: _id,
       name,
-      type: "channel",
+      type: "channels",
     }));
 
     return {
