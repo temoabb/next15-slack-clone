@@ -27,7 +27,7 @@ interface EditorProps {
   defaultValue?: Delta | Op[];
   disabled?: boolean;
   innerRef?: RefObject<Quill | null>;
-  variant?: "create" | "update";
+  variant?: "create" | "update" | "forward";
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -122,13 +122,16 @@ const Editor: React.FC<EditorProps> = ({
 
     const quill = new Quill(editorContainer, options);
     quillRef.current = quill;
-    quillRef.current.focus();
+    quill.setContents(defaultValueRef.current); //
+    setText(quill.getText()); //
+
+    const length = quill.getLength(); // Get text length
+    quill.setSelection(length, 0); // Set cursor to the end
 
     if (innerRef) {
       innerRef.current = quill; // to controll Quill with the same way from outside of the component
     }
 
-    quill.setContents(defaultValueRef.current);
     setText(quill.getText());
 
     quill.on(Quill.events.TEXT_CHANGE, () => {
@@ -162,8 +165,11 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   // We have to remove some things inside of the texts that are considered empty, but technically have some elements.
+
   // When you initiate the quill editor,its default value might be something like an empty paragraph: <p></p>
+
   // This is empty technically, but if we read the text it is not empty: "<p></p>"
+
   // We have to add a regex to remove all of this elements and after that check if it is an empty.
 
   const onEmojiSelect = (emoji: any) => {
@@ -235,11 +241,15 @@ const Editor: React.FC<EditorProps> = ({
           </Hint>
 
           {/* hide / show emojis */}
-          <EmojiPopover onEmojiSelect={onEmojiSelect}>
-            <Button size="iconSm" disabled={disabled} variant="ghost">
-              <Smile className="size-4" />
-            </Button>
-          </EmojiPopover>
+
+          {/* TODO: show emoji popover for forwarding messages too  */}
+          {variant !== "forward" ? (
+            <EmojiPopover onEmojiSelect={onEmojiSelect}>
+              <Button size="iconSm" disabled={disabled} variant="ghost">
+                <Smile className="size-4" />
+              </Button>
+            </EmojiPopover>
+          ) : null}
 
           {/* UPDATE: cancel / save  */}
           {variant === "update" ? (
@@ -283,8 +293,8 @@ const Editor: React.FC<EditorProps> = ({
             </Hint>
           ) : null}
 
-          {/* CREATE: send */}
-          {variant === "create" ? (
+          {/* CREATE || FORWARD: send */}
+          {variant !== "update" ? (
             <Button
               disabled={disabled || isEmpty}
               onClick={() => {
@@ -307,7 +317,8 @@ const Editor: React.FC<EditorProps> = ({
         </div>
       </div>
 
-      {variant === "create" ? (
+      {/* CREATE || FORWARD: add a new line */}
+      {variant !== "update" ? (
         <div
           className={cn(
             "p-2 text-muted-foreground text-[10px flex justify-end opacity-0 transition",
