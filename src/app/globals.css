@@ -125,7 +125,12 @@ body {
   @apply truncate;
 }
 
-.message-scrollbar {
+.messages-scrollbar {
   scrollbar-width: thin;
+  scrollbar-color: #dcdcdc #f8f8f8;
+}
+
+.dialogs-scrollbar {
+  scrollbar-width: none;
   scrollbar-color: #dcdcdc #f8f8f8;
 }

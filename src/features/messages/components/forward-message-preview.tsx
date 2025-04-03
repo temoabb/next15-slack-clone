@@ -31,12 +31,10 @@ export const ForwardMessagePreview: React.FC<ForwardMessagePreveiwPros> = ({
     onOpenProfile(authorId);
   };
 
-  console.log("Message image", messageImage);
-
   const avatarFallback = authorName.charAt(0).toUpperCase();
 
   return (
-    <div className="flex w-full gap-x-2 my-1.5">
+    <div className="flex w-full gap-x-2 mt-4 mb-2">
       <div className="w-1 rounded-md bg-gray-200" />
 
       <div className="flex flex-col flex-1 gap-y-0.5">
