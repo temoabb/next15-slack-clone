@@ -37,11 +37,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
 
-  const { mutate: createMessage, isPending: isCreatingMessage } =
-    useCreateMessage();
+  const { mutate: createMessage } = useCreateMessage();
 
-  const { mutate: generateUploadUrl, isPending: isGeneratingUploadUrl } =
-    useGenerateUploadUrl();
+  const { mutate: generateUploadUrl } = useGenerateUploadUrl();
 
   const handleSubmit = async ({
     body,
@@ -88,6 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
       setEditorKey((prevKey) => prevKey + 1);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to send message");
     } finally {
       setIsPending(false);

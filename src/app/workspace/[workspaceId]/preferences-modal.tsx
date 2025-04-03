@@ -45,13 +45,8 @@ const PreferencesModal = ({
 
   const workspaceId = useWorkspaceId();
 
-  const {
-    mutate: updateWorkspace,
-    data,
-    isError,
-    isPending: isUpdatingWorkspace,
-    isSettled,
-  } = useUpdateWorkspace();
+  const { mutate: updateWorkspace, isPending: isUpdatingWorkspace } =
+    useUpdateWorkspace();
 
   const { mutate: removeWorkspace, isPending: isRemovingWorkspace } =
     useRemoveWorkspace();

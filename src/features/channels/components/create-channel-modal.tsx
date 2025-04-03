@@ -23,12 +23,7 @@ const CreateChannelModal = () => {
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useCreateChannelModal();
 
-  const {
-    data,
-    error: errorCreatingChannel,
-    isPending: creatingChannel,
-    mutate: create,
-  } = useCreateChannel();
+  const { isPending: creatingChannel, mutate: create } = useCreateChannel();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\s+/g, "-").toLowerCase();

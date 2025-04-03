@@ -122,8 +122,8 @@ const Editor: React.FC<EditorProps> = ({
 
     const quill = new Quill(editorContainer, options);
     quillRef.current = quill;
-    quill.setContents(defaultValueRef.current); //
-    setText(quill.getText()); //
+    quill.setContents(defaultValueRef.current);
+    setText(quill.getText());
 
     const length = quill.getLength(); // Get text length
     quill.setSelection(length, 0); // Set cursor to the end

@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 interface ConversationHeroProps {

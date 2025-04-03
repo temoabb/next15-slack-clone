@@ -63,11 +63,9 @@ export const Profile: React.FC<ProfileProps> = ({ memberId, onClose }) => {
     memberId,
   });
 
-  const { mutate: updateMember, isPending: isUpdatingMember } =
-    useUpdateMember();
+  const { mutate: updateMember } = useUpdateMember();
 
-  const { mutate: removeMember, isPending: isRemovingMember } =
-    useRemoveMember();
+  const { mutate: removeMember } = useRemoveMember();
 
   const avatarFallback = member?.user.name?.charAt(0) ?? "M";
 

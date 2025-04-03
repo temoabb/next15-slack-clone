@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { Info, Search } from "lucide-react";
 
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -30,11 +29,11 @@ const Toolbar = () => {
 
   const { data } = useGetWorkSpace({ id: workspaceId });
 
-  const { data: members, isLoading: isLoadingMembers } = useGetMembers({
+  const { data: members } = useGetMembers({
     workspaceId,
   });
 
-  const { data: channels, isLoading: isLoadingChannels } = useGetChannels({
+  const { data: channels } = useGetChannels({
     workspaceId,
   });
 

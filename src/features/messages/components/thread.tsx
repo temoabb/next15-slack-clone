@@ -62,11 +62,9 @@ export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
   const { data: currentMember, isLoading: isCurrentMemberLoading } =
     useCurrentMember({ workspaceId });
 
-  const { mutate: createMessage, isPending: isCreatingMessage } =
-    useCreateMessage();
+  const { mutate: createMessage } = useCreateMessage();
 
-  const { mutate: generateUploadUrl, isPending: isGeneratingUploadUrl } =
-    useGenerateUploadUrl();
+  const { mutate: generateUploadUrl } = useGenerateUploadUrl();
 
   const { results, status, loadMore } = useGetMessages({
     channelId,
@@ -135,6 +133,7 @@ export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
 
       setEditorKey((prevKey) => prevKey + 1);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to send message");
     } finally {
       setIsPending(false);
