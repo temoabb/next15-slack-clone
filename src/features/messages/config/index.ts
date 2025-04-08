@@ -1,4 +1,4 @@
-import { Id, TableNames } from "../../../../convex/_generated/dataModel";
+import { Doc, Id, TableNames } from "../../../../convex/_generated/dataModel";
 
 type PreviewBase<T extends TableNames> = {
   id: Id<T>;
@@ -21,6 +21,7 @@ export type ForwardedMessageProps = {
     memberId: Id<"members">;
     name: string;
     image?: string;
+    role: Doc<"members">["role"];
   };
 
   origin: {

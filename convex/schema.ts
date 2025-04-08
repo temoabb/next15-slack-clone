@@ -64,6 +64,7 @@ const schema = defineSchema({
           memberId: v.id("members"),
           name: v.string(),
           image: v.optional(v.string()),
+          role: v.union(v.literal("admin"), v.literal("member")),
         }),
 
         origin: v.object({

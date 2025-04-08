@@ -510,6 +510,7 @@ export const forward = mutation({
           memberId: forwardingMessageAuthorMember._id,
           name: forwardedMessageAuthorUser.name ?? "",
           image: forwardedMessageAuthorUser.image ?? undefined,
+          role: forwardingMessageAuthorMember.role,
         },
 
         origin: {
