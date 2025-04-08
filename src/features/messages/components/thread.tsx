@@ -231,6 +231,7 @@ export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
                   threadTimestamp={message.threadTimestamp}
                   threadName={message.threadName}
                   forwardedMessage={message.forwardedMessage}
+                  authorRole={message.member.role}
                 />
               );
             })}
@@ -283,6 +284,7 @@ export const Thread: React.FC<ThreadProps> = ({ messageId, onClose }) => {
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
           forwardedMessage={message.forwardedMessage}
+          authorRole={message.member.role}
         />
       </div>
 

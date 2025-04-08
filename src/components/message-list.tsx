@@ -120,6 +120,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 id={message._id}
                 memberId={message.memberId}
                 authorImage={message.user.image}
+                authorRole={message.member.role}
                 authorName={message.user.name}
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
@@ -136,6 +137,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 threadName={message.threadName}
                 threadTimestamp={message.threadTimestamp}
                 forwardedMessage={message.forwardedMessage}
+                currentMemberId={currentMember?._id}
               />
             );
           })}

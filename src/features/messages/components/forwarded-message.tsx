@@ -1,7 +1,6 @@
-import React from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 import {
   Avatar,
@@ -11,16 +10,24 @@ import {
 
 import { Thumbnail } from "../../../components/thumbnail";
 
+import { Id } from "../../../../convex/_generated/dataModel";
+
 import { usePanel } from "@/hooks/use-panel";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: false });
 
+const WorkspaceMemberHoverCard = dynamic(
+  () => import("@/features/workspaces/components/workspace-member-hover-card")
+);
+
 import { cn } from "@/lib/utils";
 
 import { type ForwardedMessageProps } from "../config";
 
-export const ForwardedMessage: React.FC<ForwardedMessageProps> = ({
+export const ForwardedMessage: React.FC<
+  ForwardedMessageProps & { currentMemberId?: Id<"members"> }
+> = ({
   // id,
   body = "",
   image,
@@ -28,6 +35,7 @@ export const ForwardedMessage: React.FC<ForwardedMessageProps> = ({
   origin,
   _creationTime,
   updatedAt,
+  currentMemberId,
 }) => {
   const router = useRouter();
 
@@ -62,12 +70,20 @@ export const ForwardedMessage: React.FC<ForwardedMessageProps> = ({
             </Avatar>
           </button>
 
-          <button
-            onClick={handleProfile}
-            className="font-bold text-[14px] text-primary hover:underline"
+          <WorkspaceMemberHoverCard
+            id={author.memberId}
+            name={author.name}
+            image={author.image}
+            currentMemberId={currentMemberId}
+            role={author.role}
           >
-            {author.name}
-          </button>
+            <button
+              onClick={handleProfile}
+              className="font-bold text-[14px] text-primary hover:underline"
+            >
+              {author.name}
+            </button>
+          </WorkspaceMemberHoverCard>
         </div>
 
         <Renderer value={body} />

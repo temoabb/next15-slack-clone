@@ -20,12 +20,19 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useUpdateMessage } from "@/features/messages/api/use-update-message";
 import { useRemoveMessage } from "@/features/messages/api/use-remove-message";
 import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
-import ForwardMessageModal from "@/features/messages/components/forward-message-modal";
 
 import { cn } from "@/lib/utils";
 
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: false });
+
+const WorkspaceMemberHoverCard = dynamic(
+  () => import("@/features/workspaces/components/workspace-member-hover-card")
+);
+
+const ForwardMessageModal = dynamic(
+  () => import("@/features/messages/components/forward-message-modal")
+);
 
 const formatFullTime = (date: Date) =>
   `${isToday(date) ? "Today" : isYesterday(date) ? "Yesterdat" : format(date, "MMM d, yyyy")} at ${format(date, "h:mm:ss a")}`;
@@ -55,6 +62,8 @@ interface MessageProps {
   threadTimestamp?: number;
   threadName?: string;
   forwardedMessage?: Doc<"messages">["forwardedMessage"];
+  currentMemberId?: Id<"members">;
+  authorRole: Doc<"members">["role"];
 }
 
 export const Message: React.FC<MessageProps> = ({
@@ -63,6 +72,7 @@ export const Message: React.FC<MessageProps> = ({
   authorImage,
   authorName = "Member",
   isAuthor,
+  authorRole,
   reactions,
   body,
   image,
@@ -77,6 +87,7 @@ export const Message: React.FC<MessageProps> = ({
   threadTimestamp,
   threadName,
   forwardedMessage,
+  currentMemberId,
 }) => {
   const { mutate: updateMessage, isPending: isUpdatingMessage } =
     useUpdateMessage();
@@ -294,12 +305,20 @@ export const Message: React.FC<MessageProps> = ({
           ) : (
             <div className="flex flex-col w-full overflow-hiden">
               <div className="text-sm">
-                <button
-                  onClick={handleProfile}
-                  className="font-bold text-primary hover:underline"
+                <WorkspaceMemberHoverCard
+                  name={authorName}
+                  id={memberId}
+                  image={authorImage}
+                  role={authorRole}
+                  currentMemberId={currentMemberId}
                 >
-                  {authorName}
-                </button>
+                  <button
+                    onClick={handleProfile}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    {authorName}
+                  </button>
+                </WorkspaceMemberHoverCard>
 
                 <span>&nbsp;&nbsp;</span>
 

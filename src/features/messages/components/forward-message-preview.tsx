@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { Thumbnail } from "@/components/thumbnail";
@@ -9,10 +10,10 @@ import { usePanel } from "@/hooks/use-panel";
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: false });
 
 interface ForwardMessagePreveiwPros {
-  body?: string;
   authorId: Id<"members">;
   authorName: string;
   authorImage?: string;
+  body?: string;
   messageImage?: string;
   updatedAt?: number;
 }
@@ -48,9 +49,12 @@ export const ForwardMessagePreview: React.FC<ForwardMessagePreveiwPros> = ({
             </Avatar>
           </button>
 
-          <span className="font-bold text-[14px] text-primary hover:underline">
+          <button
+            onClick={handleProfile}
+            className="font-bold text-[14px] text-primary hover:underline"
+          >
             {authorName}
-          </span>
+          </button>
         </div>
 
         <Renderer value={body} />
