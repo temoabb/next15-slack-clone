@@ -57,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ placeholder }) => {
       };
 
       if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+        const url = await generateUploadUrl(null, { throwError: true });
 
         if (!url) throw new Error("Url not found");
 

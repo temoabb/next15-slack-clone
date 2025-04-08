@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MdOutlineAddReaction } from "react-icons/md";
 
 import { Doc, Id } from "../../convex/_generated/dataModel";

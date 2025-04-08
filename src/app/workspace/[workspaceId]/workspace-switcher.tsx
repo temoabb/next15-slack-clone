@@ -20,7 +20,7 @@ import {
 export default function WorkspaceSwitcher() {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
-  const [_, setOpen] = useCreateWorkspaceModal();
+  const [, setOpen] = useCreateWorkspaceModal();
 
   const { data: workspaces } = useGetWorkSpaces();
   const { data: workspace, isLoading: workspaceLoading } = useGetWorkSpace({

@@ -172,6 +172,7 @@ const Editor: React.FC<EditorProps> = ({
 
   // We have to add a regex to remove all of this elements and after that check if it is an empty.
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onEmojiSelect = (emoji: any) => {
     const quill = quillRef.current;
 
