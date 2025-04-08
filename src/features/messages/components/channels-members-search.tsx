@@ -15,6 +15,9 @@ import { useGetChannelsAndMembers } from "@/features/channels/api/use-get-channe
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 import { SuggestionsSkeleton } from "./suggestions-skeleton";
+
+import { cn } from "@/lib/utils";
+
 import { Preview, MemberPreview, ChannelPreview } from "../config";
 
 interface ChannelsMembersSearchProps {
@@ -30,6 +33,7 @@ export const ChannelsMembersSearch: React.FC<ChannelsMembersSearchProps> = ({
   const workspaceId = useWorkspaceId();
 
   const [inputValue, setInputValue] = useState<string>("");
+
   const [searchValue, setSearchValue] = useState<string>("");
 
   const { data, isLoading: isLoadingChannelsAndMembers } =
@@ -42,8 +46,7 @@ export const ChannelsMembersSearch: React.FC<ChannelsMembersSearchProps> = ({
     []
   );
 
-  const { data: currentMember, isLoading: isLoadingCurrentMember } =
-    useCurrentMember({ workspaceId });
+  const { data: currentMember } = useCurrentMember({ workspaceId });
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -53,11 +56,12 @@ export const ChannelsMembersSearch: React.FC<ChannelsMembersSearchProps> = ({
   const handleClearDestination = () => {
     setDestination(null);
     setInputValue("");
+    setSearchValue("");
   };
 
   return (
-    <div className="min-h-[250px]">
-      <div className="relative">
+    <div className="">
+      <div className="relative transition-all duration-300 ease-in-out">
         {destination ? (
           <div className="z-50 bg-[#e4eff1] rounded-md absolute h-[80%] top-1 left-1 flex items-center justify-between p-1.5 min-w-[250px]">
             <div className="flex items-center">
@@ -70,10 +74,10 @@ export const ChannelsMembersSearch: React.FC<ChannelsMembersSearchProps> = ({
                 </Avatar>
               ) : null}
 
-              <span className="ml-2 text-sm text-muted-foreground">
+              <span className="ml-2 text-sm font-semibold">
                 {destination.type === "channels" ? "# " : ""}
                 {destination.name}{" "}
-                {destination.id === currentMember?._id ? "(you)" : ""}{" "}
+                {destination.id === currentMember?._id ? "you" : ""}{" "}
               </span>
             </div>
 
@@ -97,43 +101,60 @@ export const ChannelsMembersSearch: React.FC<ChannelsMembersSearchProps> = ({
         />
       </div>
 
-      {data ? (
-        <ul className="pt-2 my-2 border min-h-[80px] rounded-md">
-          {data.members?.map((item) => (
-            <li
-              key={item.id}
-              onClick={() => setDestination(item as MemberPreview)}
-              className="flex items-center gap-x-1 hover:bg-[#33a8c9] hover:text-white cursor-pointer pl-4 py-1 text-[16px]"
-            >
-              <Avatar className="w-6 h-6 border flex items-center justify-center">
-                <AvatarImage src={item.image || undefined} />
-                <AvatarFallback className="bg-sky-500 flex items-center justify-center w-full h-full text-white text-sm">
-                  {item.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-muted-foreground">
-                {item.name} {currentMember?._id === item.id ? "(you)" : ""}
-              </span>
-            </li>
-          ))}
+      {searchValue && !destination ? (
+        <div
+          className={cn(
+            "relative w-full h-[250px] mt-4 shadow-sm overflow-auto messages-scrollbar transition-all duration-300 ease-in-out"
+          )}
+        >
+          {data?.channels?.length === 0 && data?.members.length === 0 ? (
+            <p className="my-4 text-md text-center text-muted-foreground">
+              No items
+            </p>
+          ) : null}
 
-          {data.channels?.map((item) => (
-            <li
-              key={item.id}
-              onClick={() => setDestination(item as ChannelPreview)}
-              className="hover:bg-[#33a8c9] hover:text-white cursor-pointer pl-4 py-1 text-[16px]"
-            >
-              <span>#</span>
-              <span className="ml-3 text-sm text-muted-foreground">
-                {item.name}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+          {(data?.members?.length || data?.channels?.length) && searchValue ? (
+            <ul className="">
+              {data.members?.map((item) => (
+                <li
+                  key={item.id}
+                  onClick={() => setDestination(item as MemberPreview)}
+                  className="flex items-center gap-x-1 hover:bg-[#bae6fd] cursor-pointer pl-4 py-2"
+                >
+                  <Avatar className="w-6 h-6 border flex items-center justify-center border-none">
+                    <AvatarImage src={item.image || undefined} />
+                    <AvatarFallback className="bg-sky-500 flex items-center justify-center w-full h-full text-white text-sm">
+                      {item.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
 
-      {searchValue.length > 2 && isLoadingChannelsAndMembers ? (
-        <SuggestionsSkeleton amount={3} />
+                  <span className="text-[16px] font-semibold ml-2">
+                    {item.name} {currentMember?._id === item.id ? "(you)" : ""}
+                  </span>
+                </li>
+              ))}
+
+              {data?.channels?.length
+                ? data.channels?.map((item) => (
+                    <li
+                      key={item.id}
+                      onClick={() => setDestination(item as ChannelPreview)}
+                      className="text-md truncat hover:bg-[#bae6fd] text-[16px] font-semibold cursor-pointer pl-5 py-2 transition-all duration-300 ease-in-out"
+                    >
+                      <span>#</span>
+                      <span className="ml-3">{item.name}</span>
+                    </li>
+                  ))
+                : null}
+            </ul>
+          ) : null}
+
+          {searchValue.length > 2 && isLoadingChannelsAndMembers ? (
+            <div className="pl-4">
+              <SuggestionsSkeleton amount={3} />
+            </div>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

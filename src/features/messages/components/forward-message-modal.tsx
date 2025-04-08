@@ -1,10 +1,9 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Quill from "quill";
+import dynamic from "next/dynamic";
 
 import { toast } from "sonner";
-
-// import Quill from "quill";
-// import dynamic from "next/dynamic";
 
 import { Id } from "../../../../convex/_generated/dataModel";
 
@@ -12,7 +11,6 @@ import {
   Dialog,
   DialogTitle,
   DialogFooter,
-  DialogTrigger,
   DialogContent,
   DialogDescription,
 } from "@/components/ui/dialog";
@@ -27,8 +25,9 @@ import { useForwardMessage } from "../api/use-forward-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 import { Preview } from "../config";
+import { cn } from "@/lib/utils";
 
-// const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
+const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
 
 interface ForwardMessageModalProps {
   open: boolean;
@@ -54,13 +53,14 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
 
   const workspaceId = useWorkspaceId();
 
+  const editorRef = useRef<Quill | null>(null);
+
   const {
     messageId,
     messageImage,
     authorMemberId,
     authorName,
     authorImage,
-    updatedAt,
     messageBody: forwardingMessageBody,
   } = rest;
 
@@ -69,18 +69,15 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
   const { mutate: forwardMessage, isPending: isForwardingMessage } =
     useForwardMessage();
 
-  const isLoading = isForwardingMessage;
-
-  const onForward = () => {
+  const onForward = ({ body }: { body: string }) => {
     if (!destination?.id) {
-      toast.error("Provide destination id");
+      toast.error("No destination provided");
       return;
     }
 
     forwardMessage(
       {
-        // TODO: add a mesasge body
-        body: '{"ops":[{"insert":"\\n"}]}',
+        body,
         workspaceId,
 
         forwardingMessage: {
@@ -105,10 +102,28 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     );
   };
 
+  const handleClose = () => {
+    setDestination(null);
+    onClose(false);
+  };
+
+  const handleForward = () => {
+    const body = JSON.stringify(editorRef.current?.getContents());
+
+    if (body) {
+      onForward({ body });
+    } else toast.error("Something went wrong");
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="transition">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent
+        className={cn(
+          "transition-all duration-300 max-h-[700px] w-[512px] rounded-lg overflow-x-hidden overflow-y-scroll dialogs-scrollbar flex flex-col"
+        )}
+      >
         <DialogDescription />
+
         <DialogTitle className="text-2xl mb-5">
           Forward this message
         </DialogTitle>
@@ -118,6 +133,17 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
           setDestination={setDestination}
           isForwarding={isForwardingMessage}
         />
+
+        <div className="mt-2">
+          <Editor
+            key={messageId}
+            placeholder="Add a message if you like."
+            variant="forward"
+            onSubmit={onForward}
+            disabled={isForwardingMessage}
+            innerRef={editorRef}
+          />
+        </div>
 
         <ForwardMessagePreview
           body={forwardingMessageBody}
@@ -131,9 +157,9 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
 
         <DialogFooter>
           <Button
-            disabled={isLoading || !destination}
+            disabled={isForwardingMessage || !destination}
             className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
-            onClick={onForward}
+            onClick={handleForward}
           >
             Forward
           </Button>
