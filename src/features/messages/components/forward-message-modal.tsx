@@ -153,8 +153,6 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
           messageImage={messageImage}
         />
 
-        {/* TODO: Add <Editor /> component here for a new message about forwarded message  */}
-
         <DialogFooter>
           <Button
             disabled={isForwardingMessage || !destination}

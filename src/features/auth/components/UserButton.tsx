@@ -34,7 +34,6 @@ const UserButton = () => {
   const handleSignOut = async () => {
     await signOut();
 
-    // TODO: Sometimes it still causes an error, if user is logged in with Gmail or GitHub
     router.push("/auth");
   };
 
@@ -50,7 +49,10 @@ const UserButton = () => {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" side="right" className="w-60">
-          <DropdownMenuItem className="h-10" onClick={handleSignOut}>
+          <DropdownMenuItem
+            className="h-10 cursor-pointer"
+            onClick={handleSignOut}
+          >
             <LogOut className="size-4 mr-2" />
             Log out
           </DropdownMenuItem>

@@ -26,7 +26,6 @@ export default function Home() {
     if (isLoading) return;
 
     if (workspaceId) {
-      // This is a side-effect
       router.replace(`/workspace/${workspaceId}`);
     } else if (!open) {
       setOpen(true);

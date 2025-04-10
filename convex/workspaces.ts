@@ -159,8 +159,6 @@ export const getById = query({
       )
       .unique();
 
-    // TODO: only members of the workspace can fetch its information
-
     if (!member) return null;
 
     const workspace = await ctx.db.get(args.id);

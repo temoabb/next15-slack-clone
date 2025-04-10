@@ -85,17 +85,22 @@ const PreferencesModal = ({
 
   // Here we've got 3 dialogs in total: main preferences modal dialog, confirmation dialog and workspace edit form dialog.
 
+  const handleOpenChange = (value: boolean) => {
+    setEditOpen(value);
+    setOpen(value);
+  };
+
   return (
     <>
       {/* CONFIRMATION DIALOG  */}
       <ConfirmDialog />
 
       {/* MAIN DIALOG  */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="p-0 bg-gray-50 overflow-hidden">
           <DialogHeader className="p-4 border-b bg-white">
             <DialogTitle>{value}</DialogTitle>
-            <DialogDescription></DialogDescription>
+            <DialogDescription />
           </DialogHeader>
 
           <div className="px-4 pb-4 flex flex-col gap-y-2">

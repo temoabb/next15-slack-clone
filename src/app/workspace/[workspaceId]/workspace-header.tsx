@@ -23,6 +23,8 @@ interface WorkspaceHeaderProps {
 }
 
 const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
+  // const [open, setOpen] = useState<boolean>(false);
+
   const [inviteOpen, setInviteOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
 
@@ -71,16 +73,23 @@ const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
             {isAdmin ? (
               <>
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   className="cursor-pointer py-2"
-                  onClick={() => setInviteOpen(true)}
+                  onClick={() => {
+                    requestAnimationFrame(() => setInviteOpen(true));
+                  }}
                 >
                   Invite people to {workspace.name}
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   className="cursor-pointer py-2"
-                  onClick={() => setPreferencesOpen(true)}
+                  onClick={() => {
+                    requestAnimationFrame(() => setPreferencesOpen(true));
+                  }}
                 >
                   Preferences
                 </DropdownMenuItem>

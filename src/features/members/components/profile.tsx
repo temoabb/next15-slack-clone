@@ -38,7 +38,6 @@ interface ProfileProps {
 
 export const Profile: React.FC<ProfileProps> = ({ memberId, onClose }) => {
   const router = useRouter();
-
   const workspaceId = useWorkspaceId();
 
   const [LeaveDialog, confirmLeave] = useConfirm(
@@ -166,7 +165,9 @@ export const Profile: React.FC<ProfileProps> = ({ memberId, onClose }) => {
   return (
     <>
       <LeaveDialog />
+
       <UpdateDialog />
+
       <RemoveDialog />
 
       <div className="h-full flex flex-col">
@@ -203,7 +204,9 @@ export const Profile: React.FC<ProfileProps> = ({ memberId, onClose }) => {
                   <DropdownMenuRadioGroup
                     value={member.member.role}
                     onValueChange={(role) =>
-                      onUpdate(role as "admin" | "member")
+                      requestAnimationFrame(() =>
+                        onUpdate(role as "admin" | "member")
+                      )
                     }
                   >
                     <DropdownMenuRadioItem value="admin">
