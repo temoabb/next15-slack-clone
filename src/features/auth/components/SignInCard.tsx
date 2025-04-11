@@ -91,7 +91,7 @@ export const SignInCard: React.FC<SignInCardProps> = ({ setState }) => {
         <Separator />
 
         <div className="flex flex-col gap-y-2.5">
-          <Button
+          {/* <Button
             disabled={pending}
             onClick={() => onProviderSignIn("google")}
             variant="outline"
@@ -100,7 +100,7 @@ export const SignInCard: React.FC<SignInCardProps> = ({ setState }) => {
           >
             <FcGoogle className="size-5 absolute top-3 left-2.5" /> Continue
             with Google
-          </Button>
+          </Button> */}
 
           <Button
             disabled={pending}

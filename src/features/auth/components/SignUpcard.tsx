@@ -116,17 +116,16 @@ export const SignUpCard: React.FC<SignUpCardProps> = ({ setState }) => {
         <Separator />
 
         <div className="flex flex-col gap-y-2.5">
-          <Button
+          {/* <Button
             disabled={pending}
-            // This will automatically create an account if the one does not exist. If it exists we will be just logged in
-            onClick={() => onProviderSignUp("google")}
+            onClick={() => onProviderSignUp("google")} // This will automatically create an account if the one does not exist. If it exists we will be just logged in.
             variant="outline"
             size="lg"
             className="w-full relative"
           >
             <FcGoogle className="size-5 absolute top-3 left-2.5" /> Continue
             with Google
-          </Button>
+          </Button> */}
 
           <Button
             disabled={pending}
