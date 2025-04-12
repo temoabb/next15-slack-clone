@@ -33,7 +33,7 @@ export const SignUpCard: React.FC<SignUpCardProps> = ({ setState }) => {
     setPending(true);
 
     // This will automatically create an account if the one does not exist.
-    // If it exists we will be just logged in
+    // If it exists we will be just logged in.
     signIn(value).finally(() => {
       setPending(false);
     });
